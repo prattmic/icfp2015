@@ -1,4 +1,6 @@
-# icfp2015
+# Requirements
+
+[Go](http://golang.org/) v1.4+
 
 # Run tests:
 ```Shell
