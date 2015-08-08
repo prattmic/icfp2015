@@ -92,10 +92,9 @@ func main() {
 					fmt.Printf("a.Next error: %v\n", err)
 					break
 				}
+				i++
 			}
 		}
-
-		fmt.Printf("Dump of parsed input:\n%+v\n", problem)
 	}
 }
 
