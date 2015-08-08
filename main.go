@@ -17,7 +17,8 @@ var (
 	memLimit = flag.Int("m", 1000, "Memory limit, in megabytes, to produce output")
 	cpus     = flag.Int("c", 1, "Number of processor cores available")
 
-	serve = flag.Bool("serve", false, "Launch a web server")
+	render = flag.Bool("render", false, "Render the board and exit")
+	serve  = flag.Bool("serve", false, "Launch a web server")
 )
 
 // multiStringValue is a flag.Value which can be specified multiple times
@@ -74,6 +75,16 @@ func main() {
 		problem, err := ParseInputProblem(f)
 		if err != nil {
 			fmt.Printf("Could not parse JSON in input file %s: %v\n", name, err)
+			return
+		}
+
+		if *render {
+			gifname := name + ".gif"
+			gif, err := os.Create(gifname)
+			if err != nil {
+				fmt.Printf("Failed to open output file %s: %v\n", gifname, err)
+			}
+			RenderInputProblem(gif, problem)
 			return
 		}
 
