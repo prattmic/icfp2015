@@ -23,7 +23,7 @@ var (
 
 	render   = flag.Bool("render", false, "Render the game")
 	display  = flag.Bool("display", false, "Open the GIF after rendering")
-	gifdelay = flag.Int("gif_delay", 100, "Time in 1/100ths of a second to wait between render frames.")
+	gifdelay = flag.Int("gif_delay", 10, "Time in 1/100ths of a second to wait between render frames.")
 )
 
 // multiStringValue is a flag.Value which can be specified multiple times
