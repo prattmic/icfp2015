@@ -19,6 +19,7 @@ var (
 
 	render = flag.Bool("render", false, "Render the board and exit")
 	serve  = flag.Bool("serve", false, "Launch a web server")
+	gifdelay  = flag.Int("gif_delay", 100, "Time in 1/100ths of a second to wait between render frames.")
 )
 
 // multiStringValue is a flag.Value which can be specified multiple times
@@ -78,23 +79,24 @@ func main() {
 			return
 		}
 
-		if *render {
-			gifname := name + ".gif"
-			gif, err := os.Create(gifname)
-			if err != nil {
-				fmt.Printf("Failed to open output file %s: %v\n", gifname, err)
+		// Take steps with random AI.
+		// TODO(myenik) make rendering less gross/if'd out everywhere.
+		for gi, g := range GamesFromProblem(problem)[:1] {
+			var renderer *GameRenderer
+			if *render {
+				renderer = NewGameRenderer()
 			}
-			RenderInputProblem(gif, problem)
-			return
-		}
 
-		for _, g := range GamesFromProblem(problem) {
 			fmt.Printf("Playing %+v\n", g)
 			a := NewAI(g)
 
 			i := 1
 			for {
 				fmt.Printf("Step %d\n", i)
+				if *render {
+					renderer.AddFrame(g)
+				}
+
 				done, err := a.Next()
 				if done {
 					fmt.Printf("Game done!\n")
@@ -105,7 +107,19 @@ func main() {
 				}
 				i++
 			}
+
+			if *render {
+				gifname := fmt.Sprintf("%s_game%d.gif", name, gi)
+				gif, err := os.Create(gifname)
+				if err != nil {
+					fmt.Printf("Failed to open output file %s: %v\n", gifname, err)
+				}
+
+				renderer.OutputGIF(gif, *gifdelay)
+				return
+			}
 		}
+
 	}
 }
 
