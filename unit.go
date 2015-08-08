@@ -89,9 +89,10 @@ func (u *Unit) Rotate(counterClockwise bool) *Unit {
 		Members: make([]Cell, len(u.Members)),
 	}
 
+	p := r.Pivot.ToCube()
 	for i, c := range u.Members {
-		cc := c.OffsetFrom(r.Pivot).ToCube().Rotate(counterClockwise)
-		r.Members[i] = cc.ToCell().Add(r.Pivot)
+		cc := c.ToCube().VectorFrom(p).Rotate(counterClockwise)
+		r.Members[i] = p.Add(cc).ToCell()
 	}
 
 	return r

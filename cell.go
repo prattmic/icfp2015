@@ -83,9 +83,9 @@ func (c Cell) Translate(d Direction) Cell {
 }
 
 type CubeCell struct {
-	x int
-	y int
-	z int
+	X int
+	Y int
+	Z int
 }
 
 // All praise the great and merciful http://www.redblobgames.com/grids/hexagons
@@ -97,35 +97,40 @@ func (c Cell) ToCube() CubeCell {
 }
 
 func (cc CubeCell) ToCell() Cell {
-	col := cc.x + int((cc.y-(cc.y%2))/2)
-	row := cc.y
+	col := cc.X + int((cc.Y-(cc.Y%2))/2)
+	row := cc.Y
 	return Cell{col, row}
 }
 
-func (cc CubeCell) Rotate(counterClockwise bool) CubeCell {
+// We have types, let's use them.
+type CubeVector CubeCell
+
+func (c CubeVector) Rotate(counterClockwise bool) CubeVector {
 	if counterClockwise {
-		q := -cc.y
-		r := -cc.z
-		s := -cc.x
-		return CubeCell{q, r, s}
+		q := -c.Y
+		r := -c.Z
+		s := -c.X
+		return CubeVector{q, r, s}
 	}
 
-	q := -cc.z
-	r := -cc.x
-	s := -cc.y
-	return CubeCell{q, r, s}
+	q := -c.Z
+	r := -c.X
+	s := -c.Y
+	return CubeVector{q, r, s}
 }
 
-func (c Cell) OffsetFrom(other Cell) Cell {
+func (c CubeCell) VectorFrom(other CubeCell) CubeVector {
 	x := c.X - other.X
 	y := c.Y - other.Y
-	return Cell{x, y}
+	z := c.Z - other.Z
+	return CubeVector{x, y, z}
 }
 
-func (c Cell) Add(other Cell) Cell {
-	x := c.X + other.X
-	y := c.Y + other.Y
-	return Cell{x, y}
+func (c CubeCell) Add(v CubeVector) CubeCell {
+	x := c.X + v.X
+	y := c.Y + v.Y
+	z := c.Y + v.Z
+	return CubeCell{x, y, z}
 }
 
 // Returns whether or not any cell in the input slice equals the cell c.
