@@ -18,56 +18,107 @@ class HexagonGrid {
     var radius = options.radius;
 
     this.radius = radius;
-    this.height = Math.sqrt(3) * radius;
-    this.width = 2 * radius;
+
+    this.flatTop = false;
+
+    if (this.flatTop) {
+      this.height = Math.sqrt(3) * radius;
+      this.width = 2 * radius;
+    } else {
+      this.height = 2 * radius;
+      this.width = Math.sqrt(3) * radius;
+    }
+
     this.side = (3 / 2) * radius;
     this.canvas = canvas;
     this.context = this.canvas.getContext('2d');
     this.canvasOriginX = 0;
     this.canvasOriginY = 0;
-  }
 
-  drawHexGrid(rows, cols, originX, originY) {
-    this.canvasOriginX = originX;
-    this.canvasOriginY = originY;
-
-    var currentHexX;
-    var currentHexY;
-    var offsetColumn = false;
-
-    for (var col = 0; col < cols; col++) {
-      for (var row = 0; row < rows; row++) {
-        if (!offsetColumn) {
-          currentHexX = (col * this.side) + originX;
-          currentHexY = (row * this.height) + originY;
-        } else {
-          currentHexX = col * this.side + originX;
-          currentHexY = (row * this.height) + originY + (this.height * 0.5);
-        }
-
-        this.drawHex(currentHexX, currentHexY, "#ddd", "");
-      }
-      offsetColumn = !offsetColumn;
+    this.defaultCell = {
+      stroke: "#000",
+      fill: "#ddd"
     }
   }
 
-  drawHexAtColRow(column, row) {
-    let drawy = this.getDrawY(column, row);
-    let drawx = this.getDrawX(column);
+  drawHexGrid(options) {
+    let board = options.board || {};
 
-    this.drawHex(currentHexX, currentHexY, "#ddd", "");
+    this.canvasOriginX = options.originX || 0;
+    this.canvasOriginY = options.originY || 0;
+
+    for (let col = 0; col < options.columns; col++) {
+      for (let row = 0; row < options.rows; row++) {
+        let origin = this.getHexOrigin(getIfOffset(col, row));
+
+        let hexPosition = this.getHexPosition(col, row, origin.x, origin.y);
+
+        let cell = board['' + col + row] || this.defaultCell;
+        this.drawHex(hexPosition.x, hexPosition.y, cell);
+      }
+    }
   }
 
-  drawHex(x0, y0, fillColor, debugText) {
-    this.context.strokeStyle = "#000";
+  getHexPosition(column, row, canvasOriginX, canvasOriginY) {
+    if (this.flatTop) {
+      return {
+        x: column * this.side + canvasOriginX,
+        y: (row * this.height) + canvasOriginY
+      }
+    }
+
+    return {
+      x: (column * this.width) + canvasOriginX,
+      y: row * this.side + canvasOriginY
+    }
+  }
+
+  getHexOrigin(offset) {
+    if (this.flatTop) {
+      return {
+        x: this.canvasOriginX,
+        y: this.canvasOriginY + (offset ? (this.height * 0.5) : 0)
+      };
+    }
+
+    return {
+      x: this.canvasOriginX + (offset ? (this.width * 0.5) : 0),
+      y: this.canvasOriginY
+    };
+  }
+
+  getIfOffset(col, row) {
+    if (this.flatTop) {
+      return col % 2 !== 0;
+    }
+
+    return row % 2 !== 0;
+  }
+
+  drawHex(x0, y0, cell) {
+    var fillColor = cell.fill;
+
+    this.context.strokeStyle = cell.stroke;
     this.context.beginPath();
 
-    this.context.moveTo(x0 + this.width - this.side, y0);
-    this.context.lineTo(x0 + this.side, y0);
-    this.context.lineTo(x0 + this.width, y0 + (this.height / 2));
-    this.context.lineTo(x0 + this.side, y0 + this.height);
-    this.context.lineTo(x0 + this.width - this.side, y0 + this.height);
-    this.context.lineTo(x0, y0 + (this.height / 2));
+    if (this.flatTop) {
+      this.context.moveTo(x0 + this.width - this.side, y0);
+      this.context.lineTo(x0 + this.side, y0);
+      this.context.lineTo(x0 + this.width, y0 + (this.height / 2));
+      this.context.lineTo(x0 + this.side, y0 + this.height);
+      this.context.lineTo(x0 + this.width - this.side, y0 + this.height);
+      this.context.lineTo(x0, y0 + (this.height / 2));
+
+    } else {
+
+      this.context.moveTo(x0 + (this.width / 2), y0);
+      this.context.lineTo(x0 + this.width, y0 + this.height - this.side);
+      this.context.lineTo(x0 + this.width, y0 + this.side);
+      this.context.lineTo(x0 + (this.width / 2), y0 + this.height);
+      this.context.lineTo(x0, y0 + this.side);
+      this.context.lineTo(x0, y0 + this.height - this.side);
+    }
+
 
     if (fillColor) {
       this.context.fillStyle = fillColor;
@@ -77,9 +128,13 @@ class HexagonGrid {
     this.context.closePath();
     this.context.stroke();
 
-    if (typeof debugText !== 'undefined') {
+    if (cell.text) {
       this.context.fillStyle = "#000";
-      this.context.fillText(debugText, x0 + (this.width / 2) - (this.width / 4), y0 + (this.height - 5));
+      this.context.fillText(
+        cell.text,
+        x0 + (this.width / 2) - (this.width / 4),
+        y0 + (this.height - 5)
+      );
     }
   }
 
@@ -108,15 +163,17 @@ class HexagonGrid {
 
   // Recusivly step up to the body to calculate canvas offset.
   getRelativeCanvasOffset() {
-    var x = 0,
-      y = 0;
-    var layoutElement = this.canvas;
+    let x = 0;
+    let y = 0;
+    let layoutElement = this.canvas;
+
     if (layoutElement.offsetParent) {
       do {
         x += layoutElement.offsetLeft - layoutElement.scrollLeft;
         y += layoutElement.offsetTop - layoutElement.scrollTop;
         layoutElement = layoutElement.offsetParent;
       } while (layoutElement);
+
       return {
         x: x,
         y: y
@@ -206,10 +263,6 @@ class HexagonGrid {
       localX: mouseX,
       localY: mouseY
     };
-  }
-
-  isInGrid(column, row, gridWidth, gridHeight) {
-    return column < gridWidth && column >= 0 && row < gridHeight && row >= 0;
   }
 }
 

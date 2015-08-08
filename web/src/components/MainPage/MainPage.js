@@ -16,9 +16,25 @@ class MainPage {
   };
 
   componentDidMount() {
-    let hexagonGrid = new HexagonGrid(document.querySelector('.hexagon-game-grid'), 50);
-    hexagonGrid.drawHexGrid(7, 10, 50, 50, true);
-    //
+    let hexagonGrid = new HexagonGrid(document.querySelector('.hexagon-game-grid'), {
+      radius: 50
+    });
+
+    let board = {
+      '00': {
+        fill: '#f00',
+        stroke: '#000'
+      }
+    };
+
+    //hexagonGrid.drawHexGrid(7, 10, 50, 50, true);
+    hexagonGrid.drawHexGrid({
+      board: board,
+      columns: 7,
+      rows: 5
+    });
+
+
     //let g;
     //function scan() {
     //  let opts = {
