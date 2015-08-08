@@ -1,4 +1,3 @@
-'use strict';
 import 'babel/polyfill';
 import ReactDOM from 'react-dom';
 import FastClick from 'fastclick';
