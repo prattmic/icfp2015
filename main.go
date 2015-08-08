@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
 )
 
 var (
@@ -17,9 +18,11 @@ var (
 	memLimit = flag.Int("m", 1000, "Memory limit, in megabytes, to produce output")
 	cpus     = flag.Int("c", 1, "Number of processor cores available")
 
-	render = flag.Bool("render", false, "Render the board and exit")
-	serve  = flag.Bool("serve", false, "Launch a web server")
-	gifdelay  = flag.Int("gif_delay", 100, "Time in 1/100ths of a second to wait between render frames.")
+	serve = flag.Bool("serve", false, "Launch a web server")
+
+	render   = flag.Bool("render", false, "Render the game")
+	display  = flag.Bool("display", false, "Open the GIF after rendering")
+	gifdelay = flag.Int("gif_delay", 100, "Time in 1/100ths of a second to wait between render frames.")
 )
 
 // multiStringValue is a flag.Value which can be specified multiple times
@@ -113,10 +116,14 @@ func main() {
 				gif, err := os.Create(gifname)
 				if err != nil {
 					fmt.Printf("Failed to open output file %s: %v\n", gifname, err)
+					return
 				}
 
 				renderer.OutputGIF(gif, *gifdelay)
-				return
+				if *display {
+					c := exec.Command("sensible-browser", gifname)
+					c.Start()
+				}
 			}
 		}
 
