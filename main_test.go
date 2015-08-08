@@ -20,7 +20,7 @@ func TestInputParsing(t *testing.T) {
 	for _, fname := range QualifierProblemFilenames() {
 		f, err := os.Open(fname)
 		if err != nil {
-			t.Fatalf("Could not open %s: %v... Did you $(cd qualifiers && bash get_qualifiers.sh) ?", fname, err)
+			t.Fatalf("Could not open %s: %v", fname, err)
 		}
 
 		_, err = ParseInputProblem(f)
