@@ -8,14 +8,14 @@ import (
 
 var (
 	// These are registered in init(), below.
-	inputFiles multiStringValue
+	inputFiles   multiStringValue
 	powerPhrases multiStringValue
 
 	timeLimit = flag.Int("t", 1000, "Time limit, in seconds, to produce output.")
 
 	// TODO(myenik) Lol we should think about how to deal with this one...
 	memLimit = flag.Int("m", 1000, "Memory limit, in megabytes, to produce output")
-	cpus = flag.Int("c", 1, "Number of processor cores available")
+	cpus     = flag.Int("c", 1, "Number of processor cores available")
 )
 
 // multiStringValue is a flag.Value which can be specified multiple times
@@ -70,6 +70,6 @@ func main() {
 }
 
 func init() {
-	flag.Var(&inputFiles, "f",  "File containing JSON encoded input.")
-	flag.Var(&powerPhrases, "p",  "Phrase of power")
+	flag.Var(&inputFiles, "f", "File containing JSON encoded input.")
+	flag.Var(&powerPhrases, "p", "Phrase of power")
 }
