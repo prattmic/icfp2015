@@ -37,6 +37,9 @@ func (m *MovePermuter) Next() (Direction, error) {
 // AI wins the game!
 type AI struct {
 	Game *Game
+
+	// moves are the moves we actually took.
+	moves []Direction
 }
 
 // NewAI builds a new AI.
@@ -60,7 +63,27 @@ func (a *AI) Next() (bool, error) {
 		log.Printf("Update(%s) -> %v, %v", m, done, err)
 		if err == nil {
 			// Successful move/game done.
+			a.moves = append(a.moves, m)
 			return done, nil
 		}
 	}
+}
+
+// Moves dumps out the moves taken as a spec string.
+func (a *AI) Moves() string {
+	commands := map[Direction]byte{
+		W:  '!', // []byte{'p', '\'', '!', '.', '0', '3'}
+		E:  'e', // []byte{'b', 'c', 'e', 'f', 'y', '2'}
+		SW: 'i', // []byte{'a', 'g', 'h', 'i', 'j', '4'}
+		SE: 'l', // []byte{'l', 'm', 'n', 'o', ' ', '5'}
+		// Clockwise: // []byte{'d', 'q', 'r', 'v', 'z', '1'}
+		// CountClockwise: // []byte{'k', 's', 't', 'u', 'w', 'x'}
+	}
+
+	var b []byte
+	for _, m := range a.moves {
+		b = append(b, commands[m])
+	}
+
+	return string(b)
 }

@@ -124,6 +124,8 @@ func main() {
 				i++
 			}
 
+			log.Printf("Moves: %s", a.Moves())
+
 			if *render {
 				gifname := fmt.Sprintf("%s_game%d.gif", name, gi)
 				gif, err := os.Create(gifname)
