@@ -125,8 +125,8 @@ func (g *Game) placeUnit(u *Unit) bool {
 	rightShift := bcenter - ucenter
 	for i := range u.Members {
 		u.Members[i].X += rightShift
-		u.Pivot.X += rightShift
 	}
+	u.Pivot.X += rightShift
 
 	return g.b.IsValid(u)
 }
