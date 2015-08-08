@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -81,6 +82,7 @@ func main() {
 		return
 	}
 
+	var output []OutputEntry
 	for _, name := range inputFiles {
 		log.Printf("Processing %s", name)
 
@@ -96,7 +98,7 @@ func main() {
 
 		// Take steps with random AI.
 		// TODO(myenik) make rendering less gross/if'd out everywhere.
-		for gi, g := range GamesFromProblem(problem)[:1] {
+		for gi, g := range GamesFromProblem(problem) {
 			var renderer *GameRenderer
 			if *render {
 				renderer = NewGameRenderer(g, *border)
@@ -139,7 +141,19 @@ func main() {
 					c.Start()
 				}
 			}
+
+			output = append(output, OutputEntry{
+				ProblemId: problem.Id,
+				Seed:      problem.SourceSeeds[gi],
+				Tag:       "",
+				Solution:  a.Moves(),
+			})
 		}
+	}
+
+	// Dump output
+	if err := json.NewEncoder(os.Stdout).Encode(&output); err != nil {
+		log.Fatalf("Failed to encode output %+v: %v", output, err)
 	}
 
 	if *profile != "" {
