@@ -95,6 +95,7 @@ func main() {
 			i := 1
 			for {
 				log.Printf("Step %d", i)
+				log.Printf("Game: %s\n", a.Game)
 				if *render {
 					renderer.AddFrame(g)
 				}

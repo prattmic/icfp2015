@@ -1,5 +1,10 @@
 package main
 
+import (
+	"fmt"
+	"strings"
+)
+
 type BoardCell struct {
 	Cell
 	filled bool
@@ -39,6 +44,22 @@ func NewBoard(w, h int, filled []Cell) *Board {
 	}
 
 	return b
+}
+
+// Pretty-print Board, indenting n levels
+func (b *Board) StringLevel(n int) string {
+	indent := strings.Repeat("\t", n)
+	endindent := strings.Repeat("\t", n-1)
+
+	return fmt.Sprintf(`Board{
+%swidth:  %d,
+%sheight: %d,
+%scells:  %+v,
+%s}`, indent, b.width, indent, b.height, indent, b.cells, endindent)
+}
+
+func (b *Board) String() string {
+	return b.StringLevel(1)
 }
 
 func (b *Board) BoardCell(c Cell) *BoardCell {

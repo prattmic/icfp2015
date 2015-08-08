@@ -78,6 +78,18 @@ func GamesFromProblem(p *InputProblem) []*Game {
 	return games
 }
 
+func (g *Game) String() string {
+	return fmt.Sprintf(`Game{
+	b:             %s,
+	units:         %+v,
+	lcg:           %+v,
+	numUnits:      %d,
+	unitsSent:     %d,
+	currUnit:      %+v,
+	previousMoves: %v,
+}`, g.b.StringLevel(2), g.units, g.lcg, g.numUnits, g.unitsSent, g.currUnit, g.previousMoves)
+}
+
 func (g *Game) LockUnit(u *Unit) {
 	for _, c := range u.Members {
 		g.b.MarkFilled(c)
