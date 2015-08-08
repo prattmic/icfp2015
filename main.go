@@ -127,7 +127,7 @@ func main() {
 			}
 
 			log.Printf("Commands: %s", a.Game.Commands)
-			log.Printf("Final Score: %f", a.Game.Score)
+			log.Printf("Final Score: %f", a.Game.Score())
 
 			if *render {
 				gifname := fmt.Sprintf("%s_game%d.gif", name, gi)
