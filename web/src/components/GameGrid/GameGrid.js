@@ -1,9 +1,9 @@
 import React, { PropTypes } from 'react';
-import styles from './ContentPage.css';
+import styles from './GameGrid.css';
 import withStyles from '../../decorators/withStyles';
 
 @withStyles(styles)
-class ContentPage {
+class GameGrid {
 
   static propTypes = {
     path: PropTypes.string.isRequired,
@@ -18,11 +18,9 @@ class ContentPage {
   render() {
     this.context.onSetTitle(this.props.title);
     return (
-      <div className="ContentPage">
-        <div className="ContentPage-container">
-          {
-            this.props.path === '/' ? null : <h1>{this.props.title}</h1>
-          }
+      <div className="GameGrid">
+        <div className="GameGrid-container">
+
           <div dangerouslySetInnerHTML={{__html: this.props.content || ''}} />
         </div>
       </div>
@@ -31,4 +29,4 @@ class ContentPage {
 
 }
 
-export default ContentPage;
+export default GameGrid;
