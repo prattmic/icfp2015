@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 )
 
 const (
@@ -31,7 +32,8 @@ func (l *GameLCG) Next() uint64 {
 // So that means the last unit in the slice is the next one to be added
 // to the game.
 type Game struct {
-	Score float64
+	// Accumulated move score so far.
+	moveScore float64
 
 	// All previous commands sent to the game.
 	Commands Commands
@@ -50,7 +52,7 @@ type Game struct {
 
 func (g *Game) Fork() *Game {
 	return &Game{
-		Score:                g.Score,
+		moveScore:            g.moveScore,
 		b:                    g.b.Fork(),
 		units:                g.units,
 		lcg:                  g.lcg,
@@ -99,7 +101,7 @@ func (g *Game) String() string {
 	unitsSent:     %d,
 	currUnit:      %+v,
 	previousMoves: %v,
-}`, g.Score, g.b.StringLevel(2), g.units, g.lcg, g.numUnits, g.unitsSent, g.currUnit, g.previousMoves)
+}`, g.Score(), g.b.StringLevel(2), g.units, g.lcg, g.numUnits, g.unitsSent, g.currUnit, g.previousMoves)
 }
 
 func (g *Game) LockUnit(u *Unit) {
@@ -143,8 +145,9 @@ func (g *Game) placeUnit(u *Unit) bool {
 	return g.b.IsValid(u)
 }
 
-// updateScore computes the new Game score, and remembers linesCleared as
-// previous lines cleared.
+// updateScore computes the new Game moves score, and remembers linesCleared as
+// previous lines cleared. The power score is computed on-demand with Score()
+// or PowerScore().
 func (g *Game) updateScore(linesCleared int) {
 	ls := float64(linesCleared)
 	lsOld := float64(g.previousLinesCleared)
@@ -159,10 +162,39 @@ func (g *Game) updateScore(linesCleared int) {
 
 	moveScore := points + float64(lineBonus)
 
-	// TODO(prattmic): phrase of power scoring
-
-	g.Score += moveScore
+	g.moveScore += moveScore
 	g.previousLinesCleared = linesCleared
+}
+
+// Count occurrences of sep within s, allowing for overlap, which the spec
+// allows for phrases of power.
+func CountOverlap(s, sep string) (count int) {
+	for i := strings.Index(s, sep); i >= 0; i = strings.Index(s, sep) {
+		count++
+		s = s[i+1:]
+	}
+	return
+}
+
+// PowerScore computes the phrase of power score from the currently completed
+// moves.
+func (g *Game) PowerScore() (score int) {
+	s := g.Commands.String()
+
+	for _, p := range powerPhrases {
+		n := CountOverlap(s, p)
+		score += 2 * len(p) * n
+		if n > 0 {
+			score += 300
+		}
+	}
+
+	return
+}
+
+// Score returns the total game score so far.
+func (g *Game) Score() float64 {
+	return g.moveScore + float64(g.PowerScore())
 }
 
 // Update returns a bool indicating whether the game is done, and err to indicate and error (backwards move).
@@ -198,7 +230,7 @@ func (g *Game) Update(c Command) (bool, error) {
 	linesCleared := g.b.ClearRows()
 	g.updateScore(linesCleared)
 
-	log.Printf("Locked unit, current score: %f", g.Score)
+	log.Printf("Locked unit, current score: %f", g.Score())
 
 	nextUnit, ok := g.NextUnit()
 	if !ok {
