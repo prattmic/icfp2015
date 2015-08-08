@@ -158,7 +158,7 @@ func (g *Game) Update(d Direction) (bool, error) {
 		return true, nil
 	}
 
-	g.previousMoves = append(g.previousMoves, g.currUnit.DeepCopy())
+	g.previousMoves = g.previousMoves[:0]
 	g.currUnit = nextUnit
 	return false, nil
 }
