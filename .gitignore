@@ -3,3 +3,6 @@
 icfp2015
 play_icfp2015
 icfp
+web/node_modules
+web/build
+web/.idea
