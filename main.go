@@ -77,6 +77,24 @@ func main() {
 			return
 		}
 
+		for _, g := range GamesFromProblem(problem) {
+			fmt.Printf("Playing %+v\n", g)
+			a := NewAI(g)
+
+			i := 1
+			for {
+				fmt.Printf("Step %d\n", i)
+				done, err := a.Next()
+				if done {
+					fmt.Printf("Game done!\n")
+					break
+				} else if err != nil {
+					fmt.Printf("a.Next error: %v\n", err)
+					break
+				}
+			}
+		}
+
 		fmt.Printf("Dump of parsed input:\n%+v\n", problem)
 	}
 }
