@@ -194,6 +194,14 @@ func NewBoard(w, h int, filled []Cell) *Board {
 		b.cells[i] = make([]BoardCell, h)
 	}
 
+	// Mark cell coordinates
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
+			b.cells[x][y].X = x
+			b.cells[x][y].Y = y
+		}
+	}
+
 	// Mark filled cells as filled.
 	for _, c := range filled {
 		b.MarkFilled(c)
