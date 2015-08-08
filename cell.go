@@ -18,6 +18,8 @@ const (
 	W
 	SW
 	SE
+	CCW
+	CW
 )
 
 func (d Direction) String() string {
@@ -32,6 +34,10 @@ func (d Direction) String() string {
 		return "SW"
 	case SE:
 		return "SE"
+	case CCW:
+		return "CCW"
+	case CW:
+		return "CW"
 	default:
 		return fmt.Sprintf("Unknown (%d)", d)
 	}
@@ -63,13 +69,63 @@ func (c Cell) Equals(other Cell) bool {
 }
 
 func (c Cell) Translate(d Direction) Cell {
-	off := offsets[d]
+	off, ok := offsets[d]
+	if !ok {
+		panic(fmt.Sprintf("Cannot translate in direction: %s\n", d))
+	}
+
 	rowIsEven := c.Y%2 == 0
 	if rowIsEven {
 		return Cell{c.X + off.ex, c.Y + off.ey}
 	}
 
 	return Cell{c.X + off.ox, c.Y + off.oy}
+}
+
+type CubeCell struct {
+	x int
+	y int
+	z int
+}
+
+// All praise the great and merciful http://www.redblobgames.com/grids/hexagons
+func (c Cell) ToCube() CubeCell {
+	q := c.X - int((c.Y-(c.Y%2))/2)
+	r := c.Y
+	s := -q - r
+	return CubeCell{q, r, s}
+}
+
+func (cc CubeCell) ToCell() Cell {
+	col := cc.x + int((cc.y-(cc.y%2))/2)
+	row := cc.y
+	return Cell{col, row}
+}
+
+func (cc CubeCell) Rotate(counterClockwise bool) CubeCell {
+	if counterClockwise {
+		q := -cc.y
+		r := -cc.z
+		s := -cc.x
+		return CubeCell{q, r, s}
+	}
+
+	q := -cc.z
+	r := -cc.x
+	s := -cc.y
+	return CubeCell{q, r, s}
+}
+
+func (c Cell) OffsetFrom(other Cell) Cell {
+	x := c.X - other.X
+	y := c.Y - other.Y
+	return Cell{x, y}
+}
+
+func (c Cell) Add(other Cell) Cell {
+	x := c.X + other.X
+	y := c.Y + other.Y
+	return Cell{x, y}
 }
 
 // Returns whether or not any cell in the input slice equals the cell c.

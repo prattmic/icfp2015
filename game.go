@@ -160,15 +160,21 @@ func (g *Game) updateScore(linesCleared int) {
 
 // Update returns a bool indicating whether the game is done, and err to indicate and error (backwards move).
 func (g *Game) Update(d Direction) (bool, error) {
-	moved := g.currUnit.Translate(d)
+	var moved *Unit
+	isRot := d == CCW || d == CW
+	if isRot {
+		moved = g.currUnit.Rotate(d == CCW)
+	} else {
+		moved = g.currUnit.Translate(d)
+	}
 
 	if moved.OverlapsAny(g.previousMoves) {
 		return true, fmt.Errorf("moved unit from %+v to %+v and it overlaps with a previous move!", g.currUnit, moved)
 	}
 
-	if g.b.IsValid(&moved) {
+	if g.b.IsValid(moved) {
 		g.previousMoves = append(g.previousMoves, g.currUnit.DeepCopy())
-		g.currUnit = &moved
+		g.currUnit = moved
 		return false, nil
 	}
 

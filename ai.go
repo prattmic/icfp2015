@@ -16,7 +16,7 @@ type MovePermuter struct {
 func NewMovePermuter() MovePermuter {
 	return MovePermuter{
 		// All the possible moves.
-		possible: []Direction{E, W, SE, SW},
+		possible: []Direction{E, W, SE, SW, CCW, CW},
 	}
 }
 
@@ -27,11 +27,10 @@ func (m *MovePermuter) Next() (Direction, error) {
 	}
 
 	i := rand.Intn(len(m.possible))
-	d := m.possible[i]
-
+	move := m.possible[i]
 	m.possible = append(m.possible[:i], m.possible[i+1:]...)
 
-	return d, nil
+	return move, nil
 }
 
 // AI wins the game!
@@ -76,8 +75,10 @@ func (a *AI) Moves() string {
 		E:  'e', // []byte{'b', 'c', 'e', 'f', 'y', '2'}
 		SW: 'i', // []byte{'a', 'g', 'h', 'i', 'j', '4'}
 		SE: 'l', // []byte{'l', 'm', 'n', 'o', ' ', '5'}
-		// Clockwise: // []byte{'d', 'q', 'r', 'v', 'z', '1'}
-		// CountClockwise: // []byte{'k', 's', 't', 'u', 'w', 'x'}
+
+		// TODO(myenik) I have no idea what these are really supposed to be.
+		CW:  '6', // []byte{'d', 'q', 'r', 'v', 'z', '1'}
+		CCW: '9', // []byte{'k', 's', 't', 'u', 'w', 'x'}
 	}
 
 	var b []byte
