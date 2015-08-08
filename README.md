@@ -6,7 +6,7 @@ $ go test
 ```
 
 # Run the binary
-As an example we'll use a qualifier problem, make sure to cd t qualifiers and run get_qualifiers.sh
+As an example we'll use a qualifier problem.
 
 ```Shell
 $ go build
