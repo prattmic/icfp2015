@@ -15,6 +15,7 @@ var (
 	pal    = color.Palette(palette.Plan9) // TODO(aray) smaller palette
 	white  = pal.Convert(color.RGBA{255, 255, 255, 255})
 	yellow = pal.Convert(color.RGBA{255, 255, 0, 255})   // Filled
+	red = pal.Convert(color.RGBA{255, 0, 0, 255})   // Filled
 	green  = pal.Convert(color.RGBA{0, 255, 0, 255})     // Unit
 	grey   = pal.Convert(color.RGBA{200, 200, 200, 255}) // Empty
 )
@@ -86,5 +87,64 @@ func RenderInputProblem(w io.Writer, ip *InputProblem) {
 	// end of not a loop anymore
 	image := []*image.Paletted{m}
 	anim := gif.GIF{Image: image, Delay: []int{10}, LoopCount: 1}
+	gif.EncodeAll(w, &anim)
+}
+
+type GameRenderer struct {
+	frames []*image.Paletted
+}
+
+func NewGameRenderer() *GameRenderer {
+	return &GameRenderer{}
+}
+
+func gameFillColor(g *Game, x, y int) color.Color {
+	c := Cell{x, y}
+
+	if c.EqualsAny(g.currUnit.Members) {
+		return red
+	}
+
+	if g.b.IsFilled(c) {
+		return yellow
+	}
+
+	return grey
+}
+
+// TODO(myenik) Render Unit
+// TODO(myenik)  Merge this with RenderInputProblem?
+func (r *GameRenderer) AddFrame(g *Game) {
+	height := g.b.height
+	width := g.b.width
+
+	rect := image.Rect(0, 0, 28+24*width, 20+18*height)
+
+	// background
+	m := image.NewPaletted(rect, pal)
+	draw.Draw(m, rect, &image.Uniform{white}, image.ZP, draw.Src)
+
+	// TODO(aray): dont hardcode pixels based on 20px hexagons
+	for i := 0; i < height; i++ {
+		for j := 0; j < width; j++ {
+			x := 10 + j*24
+			y := 10 + i*18
+			if i%2 == 1 {
+				x += 12
+			}
+			drawHex(m, x, y, 20, gameFillColor(g, j, i))
+		}
+	}
+
+	r.frames = append(r.frames, m)
+}
+
+func (r *GameRenderer) OutputGIF(w io.Writer, delay int) {
+	delays := make([]int, len(r.frames))
+	for i := range delays {
+		delays[i] = delay
+	}
+
+	anim := gif.GIF{Image: r.frames, Delay: delays, LoopCount: 0}
 	gif.EncodeAll(w, &anim)
 }
