@@ -16,6 +16,8 @@ var (
 	// TODO(myenik) Lol we should think about how to deal with this one...
 	memLimit = flag.Int("m", 1000, "Memory limit, in megabytes, to produce output")
 	cpus     = flag.Int("c", 1, "Number of processor cores available")
+
+	serve = flag.Bool("serve", false, "Launch a web server")
 )
 
 // multiStringValue is a flag.Value which can be specified multiple times
@@ -34,6 +36,10 @@ func (s *multiStringValue) Set(v string) error {
 }
 
 func ArgsOk() error {
+	if *serve {
+		return nil
+	}
+
 	if len(inputFiles) == 0 {
 		return fmt.Errorf("no file names specified")
 	}
@@ -47,6 +53,12 @@ func main() {
 	if err := ArgsOk(); err != nil {
 		fmt.Printf("invalid arguments: %v\n", err)
 		flag.Usage()
+		return
+	}
+
+	if *serve {
+		fmt.Printf("Running server...\n")
+		runServer()
 		return
 	}
 
