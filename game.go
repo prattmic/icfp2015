@@ -41,8 +41,22 @@ type Game struct {
 
 	// Keep track of moves for current unit.
 	currUnit             *Unit
-	previousMoves        []Unit
+	previousMoves        []*Unit
 	previousLinesCleared int
+}
+
+func (g *Game) Fork() *Game {
+	return &Game{
+		Score:                g.Score,
+		b:                    g.b.Fork(),
+		units:                g.units,
+		lcg:                  g.lcg,
+		numUnits:             g.numUnits,
+		unitsSent:            g.unitsSent,
+		currUnit:             g.currUnit.DeepCopy(),
+		previousMoves:        CopyUnits(g.previousMoves),
+		previousLinesCleared: g.previousLinesCleared,
+	}
 }
 
 func GamesFromProblem(p *InputProblem) []*Game {
@@ -105,7 +119,7 @@ func (g *Game) NextUnit() (*Unit, bool) {
 
 	g.unitsSent++
 
-	return &r, true
+	return r, true
 }
 
 func (g *Game) placeUnit(u *Unit) bool {

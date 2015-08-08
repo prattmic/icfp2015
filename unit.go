@@ -43,9 +43,19 @@ func (u *Unit) Overlaps(other *Unit) bool {
 	return true
 }
 
+func CopyUnits(units []*Unit) []*Unit {
+	copies := make([]*Unit, len(units))
+
+	for i, u := range units {
+		copies[i] = u.DeepCopy()
+	}
+
+	return copies
+}
+
 // Deep copy copies the Unit and its cells.
-func (u *Unit) DeepCopy() Unit {
-	r := Unit{
+func (u *Unit) DeepCopy() *Unit {
+	r := &Unit{
 		Pivot:   u.Pivot,
 		Members: make([]Cell, len(u.Members)),
 	}
@@ -57,9 +67,9 @@ func (u *Unit) DeepCopy() Unit {
 	return r
 }
 
-func (u *Unit) OverlapsAny(others []Unit) bool {
+func (u *Unit) OverlapsAny(others []*Unit) bool {
 	for _, other := range others {
-		if u.Overlaps(&other) {
+		if u.Overlaps(other) {
 			return true
 		}
 	}

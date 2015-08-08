@@ -46,6 +46,29 @@ func NewBoard(w, h int, filled []Cell) *Board {
 	return b
 }
 
+func (b *Board) Fork() *Board {
+	w := b.width
+	h := b.height
+	bcopy := &Board{width: w, height: h}
+
+	// Make columns, according to [w][h]Cell.
+	bcopy.cells = make([][]BoardCell, w)
+
+	// Fill out each column with one spot for each row.
+	for i := 0; i < w; i++ {
+		bcopy.cells[i] = make([]BoardCell, h)
+	}
+
+	// Copy cells.
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
+			bcopy.cells[x][y] = b.cells[x][y]
+		}
+	}
+
+	return bcopy
+}
+
 // Pretty-print Board, indenting n levels
 func (b *Board) StringLevel(n int) string {
 	indent := strings.Repeat("\t", n)

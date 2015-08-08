@@ -71,10 +71,10 @@ func (a *AI) Next() (bool, error) {
 // Moves dumps out the moves taken as a spec string.
 func (a *AI) Moves() string {
 	commands := map[Direction]byte{
-		W:  '!', // []byte{'p', '\'', '!', '.', '0', '3'}
-		E:  'e', // []byte{'b', 'c', 'e', 'f', 'y', '2'}
-		SW: 'i', // []byte{'a', 'g', 'h', 'i', 'j', '4'}
-		SE: 'l', // []byte{'l', 'm', 'n', 'o', ' ', '5'}
+		W:   '!', // []byte{'p', '\'', '!', '.', '0', '3'}
+		E:   'e', // []byte{'b', 'c', 'e', 'f', 'y', '2'}
+		SW:  'i', // []byte{'a', 'g', 'h', 'i', 'j', '4'}
+		SE:  'l', // []byte{'l', 'm', 'n', 'o', ' ', '5'}
 		CW:  'd', // []byte{'d', 'q', 'r', 'v', 'z', '1'}
 		CCW: 'k', // []byte{'k', 's', 't', 'u', 'w', 'x'}
 	}
