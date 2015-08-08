@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 )
@@ -56,30 +57,28 @@ func main() {
 	flag.Parse()
 
 	if err := ArgsOk(); err != nil {
-		fmt.Printf("invalid arguments: %v\n", err)
+		log.Printf("invalid arguments: %v", err)
 		flag.Usage()
 		return
 	}
 
 	if *serve {
-		fmt.Printf("Running server...\n")
+		log.Printf("Running server...")
 		runServer()
 		return
 	}
 
 	for _, name := range inputFiles {
-		fmt.Printf("Processing %s\n", name)
+		log.Printf("Processing %s", name)
 
 		f, err := os.Open(name)
 		if err != nil {
-			fmt.Printf("Could not open input file %s: %v\n", name, err)
-			return
+			log.Fatalf("Could not open input file %s: %v", name, err)
 		}
 
 		problem, err := ParseInputProblem(f)
 		if err != nil {
-			fmt.Printf("Could not parse JSON in input file %s: %v\n", name, err)
-			return
+			log.Fatalf("Could not parse JSON in input file %s: %v", name, err)
 		}
 
 		// Take steps with random AI.
@@ -90,22 +89,22 @@ func main() {
 				renderer = NewGameRenderer()
 			}
 
-			fmt.Printf("Playing %+v\n", g)
+			log.Printf("Playing %+v", g)
 			a := NewAI(g)
 
 			i := 1
 			for {
-				fmt.Printf("Step %d\n", i)
+				log.Printf("Step %d", i)
 				if *render {
 					renderer.AddFrame(g)
 				}
 
 				done, err := a.Next()
 				if done {
-					fmt.Printf("Game done!\n")
+					log.Println("Game done!")
 					break
 				} else if err != nil {
-					fmt.Printf("a.Next error: %v\n", err)
+					log.Printf("a.Next error: %v", err)
 					break
 				}
 				i++
@@ -115,8 +114,7 @@ func main() {
 				gifname := fmt.Sprintf("%s_game%d.gif", name, gi)
 				gif, err := os.Create(gifname)
 				if err != nil {
-					fmt.Printf("Failed to open output file %s: %v\n", gifname, err)
-					return
+					log.Fatalf("Failed to open output file %s: %v\n", gifname, err)
 				}
 
 				renderer.OutputGIF(gif, *gifdelay)
