@@ -1,8 +1,8 @@
 package main
 
 import (
-	"io"
 	"encoding/json"
+	"io"
 )
 
 // This takes an io.Reader, and tries to unmarshal a JSON formatted
