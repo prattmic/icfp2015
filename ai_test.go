@@ -8,13 +8,13 @@ func TestMovePermuter(t *testing.T) {
 	m := NewMovePermuter()
 	possible := []Direction{E, W, SE, SW, CCW, CW}
 
-	var got []Direction
+	var got Commands
 	for {
-		d, err := m.Next()
+		c, err := m.Next()
 		if err != nil {
 			break
 		}
-		got = append(got, d)
+		got = append(got, c)
 	}
 
 	if len(got) != 6 {
@@ -22,8 +22,9 @@ func TestMovePermuter(t *testing.T) {
 	}
 
 	found := make([]bool, 6)
-	for _, d := range got {
+	for _, c := range got {
 		for i, p := range possible {
+			d := commandToDirection[c]
 			if d != p {
 				continue
 			}
