@@ -6,6 +6,20 @@ import (
 	"testing"
 )
 
+var (
+	inputProblems []*InputProblem
+)
+
+func init() {
+	// Initialize qualifier problems. If there are errors, this will fail to
+	// work, but so wil the TestInputParsing test case...
+	for _, fname := range QualifierProblemFilenames() {
+		f, _ := os.Open(fname)
+		p, _ := ParseInputProblem(f)
+		inputProblems = append(inputProblems, p)
+	}
+}
+
 func QualifierProblemFilenames() []string {
 	var inputFiles []string
 
@@ -30,4 +44,27 @@ func TestInputParsing(t *testing.T) {
 	}
 }
 
-// TODO(myenik) Moar tests lol
+func QualifierProblems() []*InputProblem {
+	return inputProblems
+}
+
+// TODO(myenik) More extensive testing, this just ensures the game builder doesn't blow up...
+func TestGamesFromProblem(t *testing.T) {
+	for _, p := range QualifierProblems() {
+		GamesFromProblem(p)
+	}
+}
+
+func TestLCG(t *testing.T) {
+	// From the specs.
+	testSeed := uint64(17)
+	testNums := []uint64{0, 24107, 16552, 12125, 9427, 13152, 21440, 3383, 6873, 16117}
+
+	testLCG := NewLCG(testSeed)
+	for i, n := range testNums {
+		ln := testLCG.Next()
+		if n != ln {
+			t.Errorf("wrong value for LCG output %d: got %d want %d", i, ln, n)
+		}
+	}
+}
