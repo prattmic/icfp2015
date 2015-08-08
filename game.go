@@ -33,6 +33,9 @@ func (l *GameLCG) Next() uint64 {
 type Game struct {
 	Score float64
 
+	// All previous commands sent to the game.
+	Commands Commands
+
 	b         *Board
 	units     []Unit
 	lcg       GameLCG
@@ -163,7 +166,12 @@ func (g *Game) updateScore(linesCleared int) {
 }
 
 // Update returns a bool indicating whether the game is done, and err to indicate and error (backwards move).
-func (g *Game) Update(d Direction) (bool, error) {
+func (g *Game) Update(c Command) (bool, error) {
+	d, ok := commandToDirection[c]
+	if !ok {
+		return true, fmt.Errorf("unknown command %c", c)
+	}
+
 	var moved *Unit
 	isRot := d == CCW || d == CW
 	if isRot {
@@ -175,6 +183,9 @@ func (g *Game) Update(d Direction) (bool, error) {
 	if moved.OverlapsAny(g.previousMoves) {
 		return true, fmt.Errorf("moved unit from %+v to %+v and it overlaps with a previous move!", g.currUnit, moved)
 	}
+
+	// No more error beyond this point, record the command
+	g.Commands = append(g.Commands, c)
 
 	if g.b.IsValid(moved) {
 		g.previousMoves = append(g.previousMoves, g.currUnit.DeepCopy())

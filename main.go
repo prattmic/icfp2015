@@ -126,7 +126,7 @@ func main() {
 				i++
 			}
 
-			log.Printf("Moves: %s", a.Moves())
+			log.Printf("Commands: %s", a.Game.Commands)
 			log.Printf("Final Score: %f", a.Game.Score)
 
 			if *render {
@@ -147,7 +147,7 @@ func main() {
 				ProblemId: problem.Id,
 				Seed:      problem.SourceSeeds[gi],
 				Tag:       "",
-				Solution:  a.Moves(),
+				Solution:  a.Game.Commands.String(),
 			})
 		}
 	}

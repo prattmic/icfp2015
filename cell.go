@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 )
 
@@ -41,6 +42,81 @@ func (d Direction) String() string {
 	default:
 		return fmt.Sprintf("Unknown (%d)", d)
 	}
+}
+
+type Command byte
+type Commands []Command
+
+var commandToDirection = map[Command]Direction{
+	'p':  W,
+	'\'': W,
+	'!':  W,
+	'.':  W,
+	'0':  W,
+	'3':  W,
+
+	'b': E,
+	'c': E,
+	'e': E,
+	'f': E,
+	'y': E,
+	'2': E,
+
+	'a': SW,
+	'g': SW,
+	'h': SW,
+	'i': SW,
+	'j': SW,
+	'4': SW,
+
+	'l': SE,
+	'm': SE,
+	'n': SE,
+	'o': SE,
+	' ': SE,
+	'5': SE,
+
+	'd': CW,
+	'q': CW,
+	'r': CW,
+	'v': CW,
+	'z': CW,
+	'1': CW,
+
+	'k': CCW,
+	's': CCW,
+	't': CCW,
+	'u': CCW,
+	'w': CCW,
+	'x': CCW,
+}
+
+var directionToCommands = map[Direction]Commands{
+	W:   Commands{'p', '\'', '!', '.', '0', '3'},
+	E:   Commands{'b', 'c', 'e', 'f', 'y', '2'},
+	SW:  Commands{'a', 'g', 'h', 'i', 'j', '4'},
+	SE:  Commands{'l', 'm', 'n', 'o', ' ', '5'},
+	CW:  Commands{'d', 'q', 'r', 'v', 'z', '1'},
+	CCW: Commands{'k', 's', 't', 'u', 'w', 'x'},
+}
+
+func (c Command) String() string {
+	d, ok := commandToDirection[c]
+	if !ok {
+		return fmt.Sprintf("%c (Unknown)", byte(c))
+	}
+
+	return fmt.Sprintf("%c (%s)", byte(c), d)
+}
+
+func (c *Commands) String() string {
+	var b bytes.Buffer
+
+	for _, l := range *c {
+		b.WriteByte(byte(l))
+	}
+
+	return b.String()
 }
 
 type offset struct {
