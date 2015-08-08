@@ -6,7 +6,7 @@ import (
 
 func TestMovePermuter(t *testing.T) {
 	m := NewMovePermuter()
-	possible := []Direction{E, W, SE, SW}
+	possible := []Direction{E, W, SE, SW, CCW, CW}
 
 	var got []Direction
 	for {
@@ -17,11 +17,11 @@ func TestMovePermuter(t *testing.T) {
 		got = append(got, d)
 	}
 
-	if len(got) != 4 {
-		t.Errorf("All m.Next() got %v, want len(got) == 4", got)
+	if len(got) != 6 {
+		t.Errorf("All m.Next() got %v, want len(got) == 6", got)
 	}
 
-	found := make([]bool, 4)
+	found := make([]bool, 6)
 	for _, d := range got {
 		for i, p := range possible {
 			if d != p {

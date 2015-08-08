@@ -13,8 +13,8 @@ func (u *Unit) Size() int {
 	return len(u.Members)
 }
 
-func (u *Unit) Translate(d Direction) Unit {
-	r := Unit{
+func (u *Unit) Translate(d Direction) *Unit {
+	r := &Unit{
 		Pivot:   u.Pivot.Translate(d),
 		Members: make([]Cell, len(u.Members)),
 	}
@@ -83,26 +83,17 @@ func (u *Unit) widthBounds() (int, int) {
 	return leftmost, rightmost
 }
 
-// Rotate will return a new Unit that has undergone the specified
-// number of rotations about its pivot cell. Rotations are mod 6
-// wrt to the argument, for example a rotation of 2 yields:
-// Before:
-//   __    __    __
-//  /NW\__/ 2\__/ E\
-//  \__/ 3\__/ 1\__/
-//  /  \__/ P\__/  \
-//  \__/ 4\__/ 6\__/
-//  / W\__/ 5\__/SE\
-//  \__/  \__/  \__/
-//
-//  After:
-//   __    __    __
-//  /NW\__/ 6\__/ E\
-//  \__/ 1\__/ 5\__/
-//  /  \__/ P\__/  \
-//  \__/ 2\__/ 4\__/
-//  / W\__/ 3\__/SE\
-//  \__/  \__/  \__/
-//func (u *Unit) Rotate(i int) *Unit {
-//	return nil
-//}
+func (u *Unit) Rotate(counterClockwise bool) *Unit {
+	r := &Unit{
+		Pivot:   u.Pivot,
+		Members: make([]Cell, len(u.Members)),
+	}
+
+	p := r.Pivot.ToCube()
+	for i, c := range u.Members {
+		cc := c.ToCube().VectorFrom(p).Rotate(counterClockwise)
+		r.Members[i] = p.Add(cc).ToCell()
+	}
+
+	return r
+}
