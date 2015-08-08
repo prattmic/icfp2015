@@ -46,8 +46,8 @@ func (hm *HexMask) ColorModel() color.Model {
 }
 
 func (hm *HexMask) origin() image.Point {
-	px := hexborder + hm.cell.X*hexhoriz + (hm.cell.Y%2)*hexhoriz/2
-	py := hexborder + hm.cell.Y*hexvert
+	px := hm.cell.X*hexhoriz + (hm.cell.Y%2)*hexhoriz/2
+	py := hm.cell.Y * hexvert
 	return image.Point{px, py}
 }
 
@@ -68,7 +68,8 @@ func (hm *HexMask) At(xx, yy int) color.Color {
 
 func drawHex(m draw.Image, board image.Rectangle, cell Cell, i image.Image) {
 	hm := HexMask{cell}
-	draw.DrawMask(m, hm.Bounds().Add(hm.origin()), i, image.ZP, &hm, image.ZP, draw.Over)
+	r := hm.Bounds().Add(board.Min).Add(hm.origin())
+	draw.DrawMask(m, r, i, image.ZP, &hm, image.ZP, draw.Over)
 }
 
 func drawPivot(m draw.Image, board image.Rectangle, cell Cell) {
@@ -102,14 +103,15 @@ func memoizeCells(fill, unit []Cell, width, height int) []int {
 }
 
 // This takes an io.Writer, and renders a GIF of the InputProblem to it
-func RenderInputProblem(w io.Writer, ip *InputProblem) {
+func RenderInputProblem(w io.Writer, ip *InputProblem, border int) {
 	height := ip.Height
 	width := ip.Width
 	memo := memoizeCells(ip.Filled, nil, width, height)
 
+	board := image.Rect(border, border, hexhoriz/2+hexhoriz*width, hexvert*height)
+	rect := image.Rectangle{image.ZP, board.Max.Add(image.Pt(border, border))}
+
 	// background
-	rect := image.Rect(0, 0, 3*hexborder+hexhoriz/2+hexhoriz*width, 3*hexborder+hexvert*height)
-	board := image.Rect(hexborder, hexborder, hexhoriz/2+hexhoriz*width, hexvert*height)
 	m := image.NewPaletted(rect, pal)
 	draw.Draw(m, rect, &white, image.ZP, draw.Src)
 
@@ -128,11 +130,12 @@ func RenderInputProblem(w io.Writer, ip *InputProblem) {
 }
 
 type GameRenderer struct {
-	frames []*image.Paletted
+	width, height, border int
+	frames                []*image.Paletted
 }
 
-func NewGameRenderer() *GameRenderer {
-	return &GameRenderer{}
+func NewGameRenderer(g *Game, border int) *GameRenderer {
+	return &GameRenderer{width: g.b.width, height: g.b.height, border: border}
 }
 
 func gameFillColor(g *Game, x, y int) image.Image {
@@ -152,11 +155,12 @@ func gameFillColor(g *Game, x, y int) image.Image {
 // TODO(myenik) Render Unit
 // TODO(myenik)  Merge this with RenderInputProblem?
 func (r *GameRenderer) AddFrame(g *Game) {
-	height := g.b.height
-	width := g.b.width
+	height := r.height
+	width := r.width
+	border := r.border
 
-	rect := image.Rect(0, 0, 3*hexborder+hexhoriz/2+hexhoriz*width, 3*hexborder+hexvert*height)
-	board := image.Rect(hexborder, hexborder, hexhoriz/2+hexhoriz*width, hexvert*height)
+	board := image.Rect(border, border, hexhoriz/2+hexhoriz*width, hexvert*height)
+	rect := image.Rectangle{image.ZP, board.Max.Add(image.Pt(border, border))}
 
 	// background
 	m := image.NewPaletted(rect, pal)
