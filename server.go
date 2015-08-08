@@ -9,19 +9,8 @@ import (
 	"strconv"
 )
 
-// Game is a fake game type, until mgyenik gives us a real one :)
-type Game struct {
-	problem InputProblem
-}
-
-func NewGame(p InputProblem) Game {
-	return Game{
-		problem: p,
-	}
-}
-
 // All active games.
-var games map[string]Game = make(map[string]Game)
+var games map[string]*Game = make(map[string]*Game)
 
 type newGameResponse struct {
 	// Token is used to reference your game in later requests.
@@ -47,7 +36,9 @@ func newGameHandler(w http.ResponseWriter, r *http.Request) {
 	// Generate a new key. Guaranteed random by fair dice roll!
 	// TODO(prattmic): collision detection
 	k := strconv.Itoa(rand.Int())
-	games[k] = NewGame(problem)
+
+	// Ignore all but the first seeded game.
+	games[k] = GamesFromProblem(&problem)[0]
 	log.Printf("New game %s: %+v", k, games[k])
 
 	resp := newGameResponse{Token: k}
