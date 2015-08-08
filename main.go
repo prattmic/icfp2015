@@ -108,7 +108,6 @@ func main() {
 			i := 1
 			for {
 				log.Printf("Step %d", i)
-				log.Printf("Game: %s\n", a.Game)
 				if *render {
 					renderer.AddFrame(g)
 				}
@@ -125,6 +124,7 @@ func main() {
 			}
 
 			log.Printf("Moves: %s", a.Moves())
+			log.Printf("Final Score: %f", a.Game.Score)
 
 			if *render {
 				gifname := fmt.Sprintf("%s_game%d.gif", name, gi)

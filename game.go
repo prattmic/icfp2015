@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 )
 
 type InputProblem struct {
@@ -40,6 +41,8 @@ func (l *GameLCG) Next() uint64 {
 // So that means the last unit in the slice is the next one to be added
 // to the game.
 type Game struct {
+	Score float64
+
 	b         *Board
 	units     []Unit
 	lcg       GameLCG
@@ -47,8 +50,9 @@ type Game struct {
 	unitsSent int
 
 	// Keep track of moves for current unit.
-	currUnit      *Unit
-	previousMoves []Unit
+	currUnit             *Unit
+	previousMoves        []Unit
+	previousLinesCleared int
 }
 
 func GamesFromProblem(p *InputProblem) []*Game {
@@ -80,6 +84,7 @@ func GamesFromProblem(p *InputProblem) []*Game {
 
 func (g *Game) String() string {
 	return fmt.Sprintf(`Game{
+	Score:         %f,
 	b:             %s,
 	units:         %+v,
 	lcg:           %+v,
@@ -87,7 +92,7 @@ func (g *Game) String() string {
 	unitsSent:     %d,
 	currUnit:      %+v,
 	previousMoves: %v,
-}`, g.b.StringLevel(2), g.units, g.lcg, g.numUnits, g.unitsSent, g.currUnit, g.previousMoves)
+}`, g.Score, g.b.StringLevel(2), g.units, g.lcg, g.numUnits, g.unitsSent, g.currUnit, g.previousMoves)
 }
 
 func (g *Game) LockUnit(u *Unit) {
@@ -131,6 +136,28 @@ func (g *Game) placeUnit(u *Unit) bool {
 	return g.b.IsValid(u)
 }
 
+// updateScore computes the new Game score, and remembers linesCleared as
+// previous lines cleared.
+func (g *Game) updateScore(linesCleared int) {
+	ls := float64(linesCleared)
+	lsOld := float64(g.previousLinesCleared)
+	size := float64(g.currUnit.Size())
+
+	points := size + 100.0*(1.0+ls)*ls/2.0
+
+	var lineBonus int
+	if lsOld > 1 {
+		lineBonus = int((lsOld - 1.0) * points / 10.0)
+	}
+
+	moveScore := points + float64(lineBonus)
+
+	// TODO(prattmic): phrase of power scoring
+
+	g.Score += moveScore
+	g.previousLinesCleared = linesCleared
+}
+
 // Update returns a bool indicating whether the game is done, and err to indicate and error (backwards move).
 func (g *Game) Update(d Direction) (bool, error) {
 	moved := g.currUnit.Translate(d)
@@ -146,7 +173,12 @@ func (g *Game) Update(d Direction) (bool, error) {
 	}
 
 	g.LockUnit(g.currUnit)
-	g.b.ClearRows()
+
+	linesCleared := g.b.ClearRows()
+	g.updateScore(linesCleared)
+
+	log.Printf("Locked unit, current score: %f", g.Score)
+
 	nextUnit, ok := g.NextUnit()
 	if !ok {
 		// Game is done.

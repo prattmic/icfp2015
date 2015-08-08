@@ -9,6 +9,10 @@ type Unit struct {
 	Pivot   Cell
 }
 
+func (u *Unit) Size() int {
+	return len(u.Members)
+}
+
 func (u *Unit) Translate(d Direction) Unit {
 	r := Unit{
 		Pivot:   u.Pivot.Translate(d),
