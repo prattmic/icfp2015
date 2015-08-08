@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"log"
 	"math/rand"
 )
 
@@ -55,7 +56,9 @@ func (a *AI) Next() (bool, error) {
 			return false, err
 		}
 
-		if done, err := a.Game.Update(m); err == nil {
+		done, err := a.Game.Update(m)
+		log.Printf("Update(%s) -> %v, %v", m, done, err)
+		if err == nil {
 			// Successful move/game done.
 			return done, nil
 		}

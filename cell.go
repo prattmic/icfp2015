@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 type Cell struct {
 	X int
 	Y int
@@ -15,6 +19,23 @@ const (
 	SW
 	SE
 )
+
+func (d Direction) String() string {
+	switch d {
+	case E:
+		return "E"
+	case NE:
+		return "NE"
+	case W:
+		return "W"
+	case SW:
+		return "SW"
+	case SE:
+		return "SE"
+	default:
+		return fmt.Sprintf("Unknown (%d)", d)
+	}
+}
 
 type offset struct {
 	// for even row
