@@ -4,83 +4,115 @@ import (
 	//"fmt"
 	"image"
 	"image/color"
-	"image/color/palette"
 	"image/draw"
 	"image/gif"
 	"io"
 	"math"
 )
 
+const (
+	hexsize   = 20   // Hexagon size in pixels
+	hexhoriz  = 24   // Horizontal spacing of hexagons
+	hexvert   = 18   // Vertical spacing of hexagons
+	hexborder = 20   // Border pixels to edge of rectangle
+	hexpivot  = 8    // Pivot size in pixels
+	c_empty   = iota // keep this one first, we rely on it being 0
+	c_fill
+	c_unit
+)
+
 var (
-	pal    = color.Palette(palette.Plan9) // TODO(aray) smaller palette
-	white  = pal.Convert(color.RGBA{255, 255, 255, 255})
-	yellow = pal.Convert(color.RGBA{255, 255, 0, 255})   // Filled
-	red = pal.Convert(color.RGBA{255, 0, 0, 255})   // Filled
-	green  = pal.Convert(color.RGBA{0, 255, 0, 255})     // Unit
-	grey   = pal.Convert(color.RGBA{200, 200, 200, 255}) // Empty
+	white  = color.RGBA{255, 255, 255, 255} // Background
+	yellow = color.RGBA{255, 255, 0, 255}   // Filled
+	red    = color.RGBA{255, 0, 0, 255}     // Unit
+	grey   = color.RGBA{200, 200, 200, 255} // Empty
+	black  = color.RGBA{0, 0, 0, 255}       // Pivot
+	pal    = []color.Color{white, yellow, red, grey, black}
 )
 
 type HexMask struct {
-	p    image.Point // top left of bounding rectangle
-	size int         // size in pixels (dimension in both width and height)
+	cell Cell // Game board coordinate
 }
 
 func (hm *HexMask) ColorModel() color.Model {
 	return color.AlphaModel
 }
 
+func (hm *HexMask) topLeft() image.Point {
+	px := hexborder + hm.cell.X*hexhoriz + (hm.cell.Y%2)*hexhoriz/2
+	py := hexborder + hm.cell.Y*hexvert
+	return image.Point{px, py}
+}
+
 func (hm *HexMask) Bounds() image.Rectangle {
-	return image.Rect(hm.p.X, hm.p.Y, hm.p.X+hm.size, hm.p.Y+hm.size)
+	p := hm.topLeft()
+	return image.Rect(p.X, p.Y, p.X+hexsize, p.Y+hexsize)
 }
 
 func (hm *HexMask) At(xx, yy int) color.Color {
-	x := float64(xx - hm.p.X)
-	y := float64(yy - hm.p.Y)
-	k := float64(hm.size)
-	h := float64(hm.size-1) / 2.0
+	p := hm.topLeft()
+	x := float64(xx - p.X)
+	y := float64(yy - p.Y)
+	k := float64(hexsize)
+	h := float64(hexsize-1) / 2.0
 	if (k - 2*math.Abs(y-h)) <= math.Abs(x-h) {
 		return color.Alpha{0}
 	}
 	return color.Alpha{255}
 }
 
-func drawHex(m draw.Image, x, y, size int, c color.Color) {
-	hm := HexMask{image.Point{x, y}, size}
+func drawHex(m draw.Image, x, y int, c color.Color) {
+	hm := HexMask{Cell{x, y}}
 	u := image.Uniform{c}
 	draw.DrawMask(m, m.Bounds(), &u, image.ZP, &hm, image.ZP, draw.Over)
 }
 
-func fillColor(ip *InputProblem, x, y int) color.Color {
-	for _, cell := range ip.Filled {
-		//fmt.Printf("cell.X %d cell.Y %d x %d y %d", cell.X, cell.Y, x, y)
-		if cell.X == x && cell.Y == y {
-			return yellow
-		}
+func drawPivot(m draw.Image, cell Cell) {
+	h := (hexsize - hexpivot) / 2
+	x := hexborder + cell.X*hexhoriz + (cell.Y%2)*hexhoriz/2 + h
+	y := hexborder + cell.Y*hexvert + h
+	r := image.Rect(x, y, x+hexpivot, y+hexpivot)
+	u := image.Uniform{black}
+	draw.Draw(m, r, &u, image.ZP, draw.Over)
+}
+
+func fillColor(c int) color.Color {
+	switch c {
+	case c_fill:
+		return yellow
+	case c_unit:
+		return red
 	}
 	return grey
+}
+
+func memoizeCells(fill, unit []Cell, width, height int) []int {
+	memoized := make([]int, width*height) // start out all c_empty
+	for _, cell := range fill {
+		memoized[cell.X*width+cell.Y] = c_fill
+	}
+	for _, cell := range unit {
+		memoized[cell.X*width+cell.Y] = c_unit
+	}
+	return memoized
 }
 
 // This takes an io.Writer, and renders a GIF of the InputProblem to it
 func RenderInputProblem(w io.Writer, ip *InputProblem) {
 	height := ip.Height
 	width := ip.Width
-	//fmt.Printf("filling %d cells\n", len(ip.Filled))
-	//fmt.Println(ip.Filled)
-	rect := image.Rect(0, 0, 28+24*width, 20+18*height)
+	memo := memoizeCells(ip.Filled, nil, width, height)
 
 	// background
+	rect := image.Rect(0, 0, 2*hexborder+hexhoriz/2+hexhoriz*width, 2*hexborder+hexvert*height)
 	m := image.NewPaletted(rect, pal)
 	draw.Draw(m, rect, &image.Uniform{white}, image.ZP, draw.Src)
 
 	// TODO(aray): dont hardcode pixels based on 20px hexagons
-	for i := 0; i < height; i++ {
-		for j := 0; j < width; j++ {
-			x := 10 + j*24
-			y := 10 + i*18
-			if i%2 == 1 {
-				x += 12
-			}
-			drawHex(m, x, y, 20, fillColor(ip, j, i))
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			c := memo[x*width+y]
+			drawHex(m, x, y, fillColor(c))
 		}
 	}
 
@@ -118,23 +150,18 @@ func (r *GameRenderer) AddFrame(g *Game) {
 	height := g.b.height
 	width := g.b.width
 
-	rect := image.Rect(0, 0, 28+24*width, 20+18*height)
+	rect := image.Rect(0, 0, 2*hexborder+hexhoriz/2+hexhoriz*width, 2*hexborder+hexvert*height)
 
 	// background
 	m := image.NewPaletted(rect, pal)
 	draw.Draw(m, rect, &image.Uniform{white}, image.ZP, draw.Src)
 
-	// TODO(aray): dont hardcode pixels based on 20px hexagons
-	for i := 0; i < height; i++ {
-		for j := 0; j < width; j++ {
-			x := 10 + j*24
-			y := 10 + i*18
-			if i%2 == 1 {
-				x += 12
-			}
-			drawHex(m, x, y, 20, gameFillColor(g, j, i))
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			drawHex(m, x, y, gameFillColor(g, x, y))
 		}
 	}
+	drawPivot(m, g.currUnit.Pivot)
 
 	r.frames = append(r.frames, m)
 }
