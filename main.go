@@ -25,6 +25,7 @@ var (
 
 	render   = flag.Bool("render", false, "Render the game")
 	border   = flag.Int("border", 40, "Pixels of border to render")
+	hexsize  = flag.Int("hexsize", 3, "Which size to render (0=tiny,1=small,2=med,3=large)")
 	display  = flag.Bool("display", false, "Open the GIF after rendering")
 	gifdelay = flag.Int("gif_delay", 10, "Time in 1/100ths of a second to wait between render frames.")
 
@@ -101,7 +102,7 @@ func main() {
 		for gi, g := range GamesFromProblem(problem) {
 			var renderer *GameRenderer
 			if *render {
-				renderer = NewGameRenderer(g, *border)
+				renderer = NewGameRenderer(g, *border, *hexsize)
 			}
 
 			log.Printf("Playing %+v", g)
