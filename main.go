@@ -23,6 +23,7 @@ var (
 	serve = flag.Bool("serve", false, "Launch a web server")
 
 	render   = flag.Bool("render", false, "Render the game")
+	border   = flag.Int("border", 40, "Pixels of border to render")
 	display  = flag.Bool("display", false, "Open the GIF after rendering")
 	gifdelay = flag.Int("gif_delay", 10, "Time in 1/100ths of a second to wait between render frames.")
 
@@ -98,7 +99,7 @@ func main() {
 		for gi, g := range GamesFromProblem(problem)[:1] {
 			var renderer *GameRenderer
 			if *render {
-				renderer = NewGameRenderer()
+				renderer = NewGameRenderer(g, *border)
 			}
 
 			log.Printf("Playing %+v", g)
