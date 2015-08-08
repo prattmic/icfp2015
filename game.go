@@ -4,16 +4,6 @@ import (
 	"fmt"
 )
 
-type InputProblem struct {
-	Id           int
-	Units        []Unit
-	Width        int
-	Height       int
-	Filled       []Cell
-	SourceLength int
-	SourceSeeds  []uint64
-}
-
 const (
 	lcgM   uint64 = 1103515245
 	lcgI   uint64 = 12345
