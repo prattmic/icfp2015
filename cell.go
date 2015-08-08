@@ -249,7 +249,7 @@ type Game struct {
 
 func (u *Unit) Translate(d Direction) Unit {
 	r := Unit{
-		Pivot:   u.Pivot,
+		Pivot:   u.Pivot.Translate(d),
 		Members: make([]Cell, len(u.Members)),
 	}
 
