@@ -285,12 +285,20 @@ func GamesFromProblem(p *InputProblem) []*Game {
 	games := make([]*Game, nseeds)
 
 	for i, s := range p.SourceSeeds {
-		games[i] = &Game{
+		g := &Game{
 			b:        NewBoard(p.Width, p.Height, p.Filled),
 			lcg:      NewLCG(s),
 			units:    p.Units,
 			numUnits: p.SourceLength,
 		}
+
+		next, ok := g.NextUnit()
+		if !ok {
+			panic("no first move?")
+		}
+
+		g.currUnit = next
+		games[i] = g
 	}
 
 	return games
@@ -309,7 +317,19 @@ func (g *Game) NextUnit() (*Unit, bool) {
 
 	rand := g.lcg.Next()
 	idx := int(rand) % len(g.units)
-	return &g.units[idx], true
+	templUnit := &g.units[idx]
+
+	// Do a deep copy of the chosen Unit.
+	r := &Unit{
+		Pivot:   templUnit.Pivot,
+		Members: make([]Cell, len(templUnit.Members)),
+	}
+
+	for i, c := range templUnit.Members {
+		r.Members[i] = c
+	}
+
+	return r, true
 }
 
 func (u *Unit) OverlapsAny(others []Unit) bool {
