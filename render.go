@@ -11,11 +11,11 @@ import (
 )
 
 const (
-	hexsize   = 20   // Hexagon size in pixels
-	hexhoriz  = 24   // Horizontal spacing of hexagons
-	hexvert   = 18   // Vertical spacing of hexagons
-	hexborder = 20   // Border pixels to edge of rectangle
-	hexpivot  = 8    // Pivot size in pixels
+	hexsize   = 5    // Hexagon size in pixels
+	hexhoriz  = 6    // Horizontal spacing of hexagons
+	hexvert   = 4    // Vertical spacing of hexagons
+	hexborder = 40   // Border pixels to edge of rectangle
+	hexpivot  = 2    // Pivot size in pixels
 	c_empty   = iota // keep this one first, we rely on it being 0
 	c_fill
 	c_unit
