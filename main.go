@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"runtime/pprof"
 )
 
 var (
@@ -24,6 +25,8 @@ var (
 	render   = flag.Bool("render", false, "Render the game")
 	display  = flag.Bool("display", false, "Open the GIF after rendering")
 	gifdelay = flag.Int("gif_delay", 10, "Time in 1/100ths of a second to wait between render frames.")
+
+	profile = flag.String("profile", "", "Output CPU profile to file")
 )
 
 // multiStringValue is a flag.Value which can be specified multiple times
@@ -60,6 +63,15 @@ func main() {
 		log.Printf("invalid arguments: %v", err)
 		flag.Usage()
 		return
+	}
+
+	if *profile != "" {
+		f, err := os.Create(*profile)
+		if err != nil {
+			log.Fatalf("Could not create profile file %s: %v", *profile, err)
+		}
+
+		pprof.StartCPUProfile(f)
 	}
 
 	if *serve {
@@ -125,7 +137,10 @@ func main() {
 				}
 			}
 		}
+	}
 
+	if *profile != "" {
+		pprof.StopCPUProfile()
 	}
 }
 
