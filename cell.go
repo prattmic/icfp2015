@@ -72,7 +72,6 @@ func (c Cell) Translate(d Direction) Cell {
 	return Cell{c.X + off.ox, c.Y + off.oy}
 }
 
-
 // Returns whether or not any cell in the input slice equals the cell c.
 func (c *Cell) EqualsAny(cells []Cell) bool {
 	for _, other := range cells {

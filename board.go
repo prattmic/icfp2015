@@ -131,9 +131,11 @@ func (b *Board) ClearRow() bool {
 
 // ClearRows clears rows until there are no more to clear.
 // It is a no-op if there are no rows to clear.
-func (b *Board) ClearRows() {
+func (b *Board) ClearRows() (cleared int) {
 	for b.ClearRow() {
+		cleared++
 	}
+	return
 }
 
 // A move is "invalid" if the moved unit has members that overlap filled cells
