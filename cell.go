@@ -298,6 +298,9 @@ func GamesFromProblem(p *InputProblem) []*Game {
 		}
 
 		g.currUnit = next
+		if ok := g.placeUnit(next); !ok {
+			panic("not ok?")
+		}
 		games[i] = g
 	}
 
@@ -310,6 +313,20 @@ func (g *Game) LockUnit(u *Unit) {
 	}
 }
 
+// Deep copy copies the Unit and its cells.
+func (u *Unit) DeepCopy() Unit {
+	r := Unit{
+		Pivot:   u.Pivot,
+		Members: make([]Cell, len(u.Members)),
+	}
+
+	for i, c := range u.Members {
+		r.Members[i] = c
+	}
+
+	return r
+}
+
 func (g *Game) NextUnit() (*Unit, bool) {
 	if g.unitsSent >= g.numUnits {
 		return nil, false
@@ -320,16 +337,11 @@ func (g *Game) NextUnit() (*Unit, bool) {
 	templUnit := &g.units[idx]
 
 	// Do a deep copy of the chosen Unit.
-	r := &Unit{
-		Pivot:   templUnit.Pivot,
-		Members: make([]Cell, len(templUnit.Members)),
-	}
+	r := templUnit.DeepCopy()
 
-	for i, c := range templUnit.Members {
-		r.Members[i] = c
-	}
+	g.unitsSent++
 
-	return r, true
+	return &r, true
 }
 
 func (u *Unit) OverlapsAny(others []Unit) bool {
@@ -382,6 +394,7 @@ func (g *Game) placeUnit(u *Unit) bool {
 	rightShift := bcenter - ucenter
 	for i := range u.Members {
 		u.Members[i].X += rightShift
+		u.Pivot.X += rightShift
 	}
 
 	return g.b.IsValid(u)
@@ -396,10 +409,12 @@ func (g *Game) Update(d Direction) (bool, error) {
 	}
 
 	if g.b.IsValid(&moved) {
+		g.previousMoves = append(g.previousMoves, g.currUnit.DeepCopy())
+		g.currUnit = &moved
 		return false, nil
 	}
 
-	g.LockUnit(&moved)
+	g.LockUnit(g.currUnit)
 	g.b.ClearRows()
 	nextUnit, ok := g.NextUnit()
 	if !ok {
@@ -412,6 +427,7 @@ func (g *Game) Update(d Direction) (bool, error) {
 		return true, nil
 	}
 
+	g.previousMoves = append(g.previousMoves, g.currUnit.DeepCopy())
 	g.currUnit = nextUnit
 	return false, nil
 }
