@@ -6,8 +6,6 @@ import ContentPage from './components/ContentPage';
 import GameFetcher from './components/GameFetcher';
 import NotFoundPage from './components/NotFoundPage';
 import ErrorPage from './components/ErrorPage';
-import sampleData from '../../game-output';
-import xhr from 'xhr';
 
 const dir = '../../qualifiers/';
 
