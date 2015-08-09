@@ -220,16 +220,23 @@ func (g *Game) Update(c Command) (bool, bool, error) {
 		moved = g.currUnit.Translate(d)
 	}
 
-	if moved.OverlapsAny(g.previousMoves) {
+	// We cannot move into the same position, so we must add the current
+	// position (before the translate which we are about to check) to the
+	// list of moves to check against. We do this now, rather than the end
+	// of the previous Update call to prevent a bad rotation on the first
+	// move.
+	previousMoves := append(g.previousMoves, g.currUnit.DeepCopy())
+	if moved.OverlapsAny(previousMoves) {
 		return false, true, fmt.Errorf("moved unit from %+v to %+v and it overlaps with a previous move!", g.currUnit, moved)
 	}
 
-	// No more error beyond this point, record the command
+	// No more error beyond this point, record the command and previous
+	// moves.
 	g.Commands = append(g.Commands, c)
+	g.previousMoves = previousMoves
 
 	if g.B.IsValid(moved) {
 		g.currUnit = moved
-		g.previousMoves = append(g.previousMoves, g.currUnit.DeepCopy())
 		return false, false, nil
 	}
 
