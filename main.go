@@ -14,6 +14,7 @@ var (
 	// These are registered in init(), below.
 	inputFiles   multiStringValue
 	powerPhrases multiStringValue
+	aiFlag       string
 
 	timeLimit = flag.Int("t", 1000, "Time limit, in seconds, to produce output.")
 
@@ -106,13 +107,13 @@ func main() {
 			}
 
 			log.Printf("Playing %+v", g)
-			a := NewTreeAI(g)
+			a := NewAI(g)
 
 			i := 1
 			for {
 				log.Printf("Step %d", i)
 				if *render {
-					renderer.AddFrame(a.Game)
+					renderer.AddFrame(a.Game())
 				}
 
 				done, err := a.Next()
@@ -126,8 +127,8 @@ func main() {
 				i++
 			}
 
-			log.Printf("Commands: %s", a.Game.Commands)
-			log.Printf("Final Score: %f", a.Game.Score())
+			log.Printf("Commands: %s", a.Game().Commands)
+			log.Printf("Final Score: %f", a.Game().Score())
 
 			if *render {
 				gifname := fmt.Sprintf("%s_game%d.gif", name, gi)
@@ -147,7 +148,7 @@ func main() {
 				ProblemId: problem.Id,
 				Seed:      problem.SourceSeeds[gi],
 				Tag:       "",
-				Solution:  a.Game.Commands.String(),
+				Solution:  a.Game().Commands.String(),
 			})
 		}
 	}
@@ -165,4 +166,16 @@ func main() {
 func init() {
 	flag.Var(&inputFiles, "f", "File containing JSON encoded input.")
 	flag.Var(&powerPhrases, "p", "Phrase of power")
+
+	var keys string
+	comma := ""
+	for k := range ais {
+		keys += fmt.Sprintf("%s %s", comma, k)
+		if comma == "" {
+			comma = ","
+		}
+	}
+
+	flag.StringVar(&aiFlag, "ai", "treeai", fmt.Sprintf("AI to use:%s", keys))
+
 }
