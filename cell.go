@@ -190,15 +190,15 @@ type CubeVector CubeCell
 
 func (c CubeVector) Rotate(counterClockwise bool) CubeVector {
 	if counterClockwise {
-		q := -c.Y
-		r := -c.Z
-		s := -c.X
+		q := -c.Z
+		r := -c.X
+		s := -c.Y
 		return CubeVector{q, r, s}
 	}
 
-	q := -c.Z
-	r := -c.X
-	s := -c.Y
+	q := -c.Y
+	r := -c.Z
+	s := -c.X
 	return CubeVector{q, r, s}
 }
 
