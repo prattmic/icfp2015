@@ -3,9 +3,13 @@ import Router from 'react-routing/src/Router';
 import http from './core/http';
 import App from './components/App';
 import ContentPage from './components/ContentPage';
-import MainPage from './components/MainPage';
+import GameFetcher from './components/GameFetcher';
 import NotFoundPage from './components/NotFoundPage';
 import ErrorPage from './components/ErrorPage';
+import sampleData from '../../game-output';
+import xhr from 'xhr';
+
+const dir = '../../qualifiers/';
 
 const router = new Router(on => {
 
@@ -14,7 +18,9 @@ const router = new Router(on => {
     return component && <App context={state.context}>{component}</App>;
   });
 
-  on('/', async () => <MainPage />);
+  on('/', () => {
+    return <GameFetcher />;
+  });
 
   on('*', async (state) => {
     const content = await http.get(`/api/content?path=${state.path}`);

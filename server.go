@@ -39,14 +39,34 @@ func newGameHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Ignore all but the first seeded game.
 	g := GamesFromProblem(&problem)[0]
-	active[k] = NewAI(g)
+	a := NewAI(g)
+	active[k] = a
+
+	frames := []Board{}
+
+	// All frames match the last currently, because I don't
+	// understand how go handles references. Q.Q
+	i := 1
+	for {
+		frame := *a.Game().B
+
+		// Make this copy the object to save state for later.
+		frames = append(frames, frame)
+		done, err := a.Next()
+		if done {
+			log.Println("Game done!")
+			break
+		} else if err != nil {
+			log.Printf("a.Next error: %v", err)
+			break
+		}
+		i++
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 
-	log.Println("Game %s", g.B)
-
-	if err := json.NewEncoder(w).Encode(g.B); err != nil {
+	if err := json.NewEncoder(w).Encode(frames); err != nil {
 		http.Error(w, fmt.Sprintf("Unable to encode JSON: %v", err), http.StatusInternalServerError)
 		return
 	}

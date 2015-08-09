@@ -38,7 +38,7 @@ class HexagonGrid {
     this.defaultCell = {
       stroke: '#000',
       fill: '#ddd'
-    }
+    };
   }
 
   drawHexGrid(options) {
