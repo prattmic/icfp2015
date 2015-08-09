@@ -31,6 +31,8 @@ var (
 	gifdelay = flag.Int("gif_delay", 10, "Time in 1/100ths of a second to wait between render frames.")
 
 	profile = flag.String("profile", "", "Output CPU profile to file")
+
+	repeat = flag.String("repeat", "", "String for RepeaterAI to run")
 )
 
 // multiStringValue is a flag.Value which can be specified multiple times
