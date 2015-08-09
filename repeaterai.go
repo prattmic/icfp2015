@@ -4,16 +4,14 @@ import (
 	"log"
 )
 
-var (
-	repeatIndex = 0
-)
-
 type RepeaterAI struct {
-	game *Game
+	index int
+	str   string
+	game  *Game
 }
 
 func NewRepeaterAI(g *Game) AI {
-	return &RepeaterAI{game: g}
+	return &RepeaterAI{index: 0, str: *repeat, game: g}
 }
 
 // Game returns the Game used by the AI.
@@ -25,9 +23,9 @@ func (ai *RepeaterAI) Game() *Game {
 // Next steps the AI one step, returning true if the game is
 // complete, or an error if the game cannot continue.
 func (ai *RepeaterAI) Next() (bool, error) {
-	if repeatIndex < len(*repeat) {
-		c := Command((*repeat)[repeatIndex])
-		repeatIndex++
+	if ai.index < len(ai.str) {
+		c := Command(ai.str[ai.index])
+		ai.index++
 		done, err := ai.game.Update(c)
 		log.Printf("Update(%s) -> %v, %v", c, done, err)
 		return done, err
