@@ -112,7 +112,7 @@ func main() {
 			for {
 				log.Printf("Step %d", i)
 				if *render {
-					renderer.AddFrame(g)
+					renderer.AddFrame(a.Game)
 				}
 
 				done, err := a.Next()
