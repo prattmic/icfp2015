@@ -1,14 +1,21 @@
 package main
 
+import (
+	_ "fmt"
+)
+
 type Node struct {
-	score    int
+	score    float64
+	dead     bool // Game ending leaf.
 	d        Direction
 	children []*Node
 }
 
 var (
-	dirs = []Direction{E, SE, SW, W, CW, CCW}
+	dirs = []Direction{SE, SW, E, W, CW, CCW}
 	nary = len(dirs)
+
+	depthWeight = 100.0
 )
 
 // TODO(mgyenik) make this and d Diection in Node a Command
@@ -21,8 +28,8 @@ func (n *Node) BestMove() *Node {
 		panic("Can't find best move on leaf node")
 	}
 
-	var best *Node
-	hiscore := 0
+	best := n.children[0]
+	hiscore := 0.0
 	for _, c := range n.children {
 		if c.score > hiscore {
 			hiscore = c.score
@@ -37,27 +44,47 @@ func (n *Node) IsLeaf() bool {
 	return n.children == nil
 }
 
-// TODO(myenik) We just pick the best of the first moves and discard the rest...
-func BuildScoreTree(d Direction, g *Game, depth int) *Node {
-	n := Node{d: d}
+func (n *Node) IsDead() bool {
+	return n.dead
+}
+
+func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
+	n := &Node{d: d}
 	thisgame := g.Fork()
-	done, err := thisgame.Update(d)
+	c := directionToCommands[d][0]
+	done, err := thisgame.Update(c)
 	if err != nil {
 		// NO POINTS FOR U
 		n.score = 0
+		n.dead = true
 		return n
 	}
 
-	if done || depth == 0 {
-		n.score = g.Score()
+	if done {
+		// NO POINTS FOR U
+		n.score = 0
+		n.dead = true
+		return n
+	}
+
+	if depth == 0 {
+		midY := 0.0
+		for _, c := range g.currUnit.Members {
+			midY += float64(c.Y)
+		}
+		midY /= float64(len(g.currUnit.Members))
+
+		n.score = g.Score() + depthWeight*(midY+100.0*float64(height))
+		n.dead = true
 		return n
 	}
 
 	n.children = make([]*Node, nary)
 	for i := range n.children {
-		n.children[i] = BuildScoreTree(dirs[i], thisgame, depth-1)
+		n.children[i] = BuildScoreTree(dirs[i], thisgame, depth-1, height+1)
 	}
 
 	n.score = n.BestMove().score
+
 	return n
 }

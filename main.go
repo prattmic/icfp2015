@@ -106,7 +106,7 @@ func main() {
 			}
 
 			log.Printf("Playing %+v", g)
-			a := NewAI(g)
+			a := NewTreeAI(g)
 
 			i := 1
 			for {
