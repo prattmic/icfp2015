@@ -134,7 +134,7 @@ func (g *Game) NextUnit() (*Unit, bool) {
 func (g *Game) placeUnit(u *Unit) bool {
 	l, r := u.widthBounds()
 	ucenter := (r - l) / 2
-	bcenter := g.b.width / 2
+	bcenter := (g.b.width-1) / 2
 	if ucenter == bcenter {
 		return g.b.IsValid(u)
 	}
