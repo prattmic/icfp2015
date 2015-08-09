@@ -36,8 +36,8 @@ class HexagonGrid {
     this.canvasOriginY = 0;
 
     this.defaultCell = {
-      stroke: "#000",
-      fill: "#ddd"
+      stroke: '#000',
+      fill: '#ddd'
     }
   }
 
@@ -129,7 +129,7 @@ class HexagonGrid {
     this.context.stroke();
 
     if (cell.text) {
-      this.context.fillStyle = "#000";
+      this.context.fillStyle = '#000';
       this.context.fillText(
         cell.text,
         x0 + (this.width / 2) - (this.width / 4),
