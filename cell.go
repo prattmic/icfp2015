@@ -21,6 +21,7 @@ const (
 	SE
 	CCW
 	CW
+	NOP
 )
 
 func (d Direction) String() string {
@@ -39,6 +40,8 @@ func (d Direction) String() string {
 		return "CCW"
 	case CW:
 		return "CW"
+	case NOP:
+		return "NOP"
 	default:
 		return fmt.Sprintf("Unknown (%d)", d)
 	}
@@ -89,6 +92,10 @@ var commandToDirection = map[Command]Direction{
 	'u': CCW,
 	'w': CCW,
 	'x': CCW,
+
+	'\t': NOP,
+	'\n': NOP,
+	'\r': NOP,
 }
 
 var directionToCommands = map[Direction]Commands{

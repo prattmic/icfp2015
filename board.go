@@ -93,6 +93,10 @@ func (b *Board) MarkFilled(c Cell) {
 	b.BoardCell(c).Filled = true
 }
 
+func (b *Board) MarkUnfilled(c Cell) {
+	b.BoardCell(c).Filled = false
+}
+
 func (b *Board) IsFilled(c Cell) bool {
 	return b.BoardCell(c).Filled
 }
@@ -132,6 +136,7 @@ func (b *Board) TranslateRowDown(row int) {
 		if b.Cells[i][row].Filled {
 			cell := Cell{X: i, Y: row}
 			b.MarkFilled(cell.Translate(dir))
+			b.MarkUnfilled(cell)
 		}
 	}
 }
@@ -141,8 +146,8 @@ func (b *Board) TranslateRowDown(row int) {
 func (b *Board) ClearRow() bool {
 	for i := b.Height - 1; i >= 0; i-- {
 		if b.RowIsFilled(i) {
-			for j := i; j >= 0; j-- {
-				b.UnfillRow(j)
+			b.UnfillRow(i)
+			for j := i - 1; j >= 0; j-- {
 				b.TranslateRowDown(j)
 			}
 			return true

@@ -155,6 +155,7 @@ func (r *GameRenderer) OutputGIF(w io.Writer, delay int) {
 	for i := range delays {
 		delays[i] = delay
 	}
+	delays[len(delays)-1] = 200 // last frame is 2 seconds
 
 	anim := gif.GIF{Image: r.frames, Delay: delays, LoopCount: 0}
 	gif.EncodeAll(w, &anim)

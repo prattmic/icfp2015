@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -99,7 +98,7 @@ func GamesFromProblem(p *InputProblem) []*Game {
 func (g *Game) String() string {
 	return fmt.Sprintf(`Game{
 	Score:         %f,
-	b:             %s,
+	B:             %s,
 	units:         %+v,
 	lcg:           %+v,
 	numUnits:      %d,
@@ -135,7 +134,7 @@ func (g *Game) NextUnit() (*Unit, bool) {
 func (g *Game) placeUnit(u *Unit) bool {
 	l, r := u.widthBounds()
 	ucenter := (r - l) / 2
-	bcenter := g.B.Width / 2
+	bcenter := (g.B.Width - 1) / 2
 	if ucenter == bcenter {
 		return g.B.IsValid(u)
 	}
@@ -202,11 +201,15 @@ func (g *Game) Score() float64 {
 	return g.moveScore + float64(g.PowerScore())
 }
 
-// Update returns a bool indicating whether the game is done, and err to indicate and error (backwards move).
-func (g *Game) Update(c Command) (bool, error) {
+// Update returns a bool indicating whether a piece was locked, the game is done, and err to indicate and error (backwards move).
+func (g *Game) Update(c Command) (bool, bool, error) {
 	d, ok := commandToDirection[c]
 	if !ok {
-		return true, fmt.Errorf("unknown command %c", c)
+		return false, true, fmt.Errorf("unknown command %c", c)
+	}
+
+	if d == NOP {
+		return false, false, nil
 	}
 
 	var moved *Unit
@@ -218,7 +221,7 @@ func (g *Game) Update(c Command) (bool, error) {
 	}
 
 	if moved.OverlapsAny(g.previousMoves) {
-		return true, fmt.Errorf("moved unit from %+v to %+v and it overlaps with a previous move!", g.currUnit, moved)
+		return false, true, fmt.Errorf("moved unit from %+v to %+v and it overlaps with a previous move!", g.currUnit, moved)
 	}
 
 	// No more error beyond this point, record the command
@@ -227,7 +230,7 @@ func (g *Game) Update(c Command) (bool, error) {
 	if g.B.IsValid(moved) {
 		g.previousMoves = append(g.previousMoves, g.currUnit.DeepCopy())
 		g.currUnit = moved
-		return false, nil
+		return false, false, nil
 	}
 
 	g.LockUnit(g.currUnit)
@@ -235,20 +238,18 @@ func (g *Game) Update(c Command) (bool, error) {
 	linesCleared := g.B.ClearRows()
 	g.updateScore(linesCleared)
 
-	log.Printf("Locked unit, current score: %f", g.Score())
-
 	nextUnit, ok := g.NextUnit()
 	if !ok {
 		// Game is done.
-		return true, nil
+		return true, true, nil
 	}
 
 	if ok := g.placeUnit(nextUnit); !ok {
 		// Game is done.
-		return true, nil
+		return true, true, nil
 	}
 
 	g.previousMoves = g.previousMoves[:0]
 	g.currUnit = nextUnit
-	return false, nil
+	return true, false, nil
 }

@@ -14,6 +14,7 @@ var (
 	// These are registered in init(), below.
 	inputFiles   multiStringValue
 	powerPhrases multiStringValue
+	aiFlag       string
 
 	timeLimit = flag.Int("t", 1000, "Time limit, in seconds, to produce output.")
 
@@ -30,6 +31,8 @@ var (
 	gifdelay = flag.Int("gif_delay", 10, "Time in 1/100ths of a second to wait between render frames.")
 
 	profile = flag.String("profile", "", "Output CPU profile to file")
+
+	repeat = flag.String("repeat", "", "String for RepeaterAI to run")
 )
 
 // multiStringValue is a flag.Value which can be specified multiple times
@@ -112,7 +115,7 @@ func main() {
 			for {
 				log.Printf("Step %d", i)
 				if *render {
-					renderer.AddFrame(a.Game)
+					renderer.AddFrame(a.Game())
 				}
 
 				done, err := a.Next()
@@ -126,8 +129,8 @@ func main() {
 				i++
 			}
 
-			log.Printf("Commands: %s", a.Game.Commands)
-			log.Printf("Final Score: %f", a.Game.Score())
+			log.Printf("Commands: %s", a.Game().Commands)
+			log.Printf("Final Score: %f", a.Game().Score())
 
 			if *render {
 				gifname := fmt.Sprintf("%s_game%d.gif", name, gi)
@@ -147,7 +150,7 @@ func main() {
 				ProblemId: problem.Id,
 				Seed:      problem.SourceSeeds[gi],
 				Tag:       "",
-				Solution:  a.Game.Commands.String(),
+				Solution:  a.Game().Commands.String(),
 			})
 		}
 	}
@@ -165,4 +168,16 @@ func main() {
 func init() {
 	flag.Var(&inputFiles, "f", "File containing JSON encoded input.")
 	flag.Var(&powerPhrases, "p", "Phrase of power")
+
+	var keys string
+	comma := ""
+	for k := range ais {
+		keys += fmt.Sprintf("%s %s", comma, k)
+		if comma == "" {
+			comma = ","
+		}
+	}
+
+	flag.StringVar(&aiFlag, "ai", "treeai", fmt.Sprintf("AI to use:%s", keys))
+
 }
