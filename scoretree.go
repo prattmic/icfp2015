@@ -56,9 +56,11 @@ func (n *Node) IsDead() bool {
 func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 	n := &Node{d: d, id: uniqueId}
 	uniqueId++
-	thisgame := g.Fork()
+
 	c := directionToCommands[d][0]
-	locked, done, err := thisgame.Update(c)
+
+	forked := g.Fork()
+	locked, done, err := forked.Update(c)
 	if err != nil {
 		// NO POINTS FOR U
 		n.score = -1000000000
@@ -75,18 +77,18 @@ func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 
 	if depth == 0 {
 		midY := 0.0
-		for _, c := range g.currUnit.Members {
+		for _, c := range forked.currUnit.Members {
 			midY += float64(c.Y)
 		}
-		midY /= float64(len(g.currUnit.Members))
+		midY /= float64(len(forked.currUnit.Members))
 
-		n.score = g.Score() + depthWeight*(midY+float64(height))
+		n.score = forked.Score() + depthWeight*(midY+float64(height))
 		return n
 	}
 
 	n.children = make([]*Node, nary)
 	for i := range n.children {
-		n.children[i] = BuildScoreTree(dirs[i], thisgame, depth-1, height+1)
+		n.children[i] = BuildScoreTree(dirs[i], forked, depth-1, height+1)
 	}
 
 	if locked {
