@@ -208,6 +208,10 @@ func (g *Game) Update(c Command) (bool, bool, error) {
 		return false, true, fmt.Errorf("unknown command %c", c)
 	}
 
+	if d == NOP {
+		return false, false, nil
+	}
+
 	var moved *Unit
 	isRot := d == CCW || d == CW
 	if isRot {
