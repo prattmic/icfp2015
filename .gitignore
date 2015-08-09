@@ -6,3 +6,4 @@ icfp
 web/node_modules
 web/build
 web/.idea
+*.gif

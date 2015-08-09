@@ -3,14 +3,31 @@
 [Go](http://golang.org/) v1.4+
 
 # Run tests:
-```Shell
+```sh
 $ go test
+```
+
+# Build the binary
+```sh
+make
 ```
 
 # Run the binary
 As an example we'll use a qualifier problem.
 
-```Shell
-$ go build
-$ ./icfp2015 -f qualifiers/problem_4.json
+```sh
+$ ./play_icfp2015 -f qualifiers/problem_4.json
+```
+
+# Run the server
+Start a server with some endpoints.
+
+```sh
+$ ./play_icfp2015 -serve
+```
+
+# Profile the application
+```sh
+$ ./play_icfp2015 <whatever> -profile /tmp/out.pprof
+$ go tool pprof -web ./play_icfp2015 /tmp/out.pprof
 ```
