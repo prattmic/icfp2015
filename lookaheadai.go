@@ -100,6 +100,10 @@ func (a *LookaheadAI) Next() (bool, error) {
 		}
 
 		if r.score > bestScore {
+			if r.done && !best.done {
+				// Don't override non-done with done.
+				continue
+			}
 			log.Printf("best by score: %+v", r)
 			bestScore = r.score
 			best = r
