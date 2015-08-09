@@ -69,7 +69,7 @@ func (a *LookaheadAI) Next() (bool, error) {
 
 	runner := func(c Command) {
 		g := a.game.Fork()
-		done, err := g.Update(c)
+		_, done, err := g.Update(c)
 
 		ch <- aiResult{
 			command: c,

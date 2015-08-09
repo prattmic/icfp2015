@@ -26,7 +26,7 @@ func (ai *RepeaterAI) Next() (bool, error) {
 	if ai.index < len(ai.str) {
 		c := Command(ai.str[ai.index])
 		ai.index++
-		done, err := ai.game.Update(c)
+		_, done, err := ai.game.Update(c)
 		log.Printf("Update(%s) -> %v, %v", c, done, err)
 		return done, err
 	}

@@ -1,7 +1,6 @@
 package main
 
-import (
-)
+import ()
 
 type Node struct {
 	id       int
@@ -39,6 +38,10 @@ func (n *Node) BestMove() *Node {
 		}
 	}
 
+	if best == nil {
+		panic("nil best")
+	}
+
 	return best
 }
 
@@ -55,17 +58,17 @@ func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 	uniqueId++
 	thisgame := g.Fork()
 	c := directionToCommands[d][0]
-	done, err := thisgame.Update(c)
+	locked, done, err := thisgame.Update(c)
 	if err != nil {
 		// NO POINTS FOR U
-		n.score = 0
+		n.score = -1000000000
 		n.dead = true
 		return n
 	}
 
 	if done {
 		// NO POINTS FOR U
-		n.score = 0
+		n.score = -1000000000
 		n.dead = true
 		return n
 	}
@@ -77,7 +80,7 @@ func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 		}
 		midY /= float64(len(g.currUnit.Members))
 
-		n.score = g.Score() + depthWeight*(midY+100.0*float64(height))
+		n.score = g.Score() + depthWeight*(midY+float64(height))
 		return n
 	}
 
@@ -86,7 +89,11 @@ func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 		n.children[i] = BuildScoreTree(dirs[i], thisgame, depth-1, height+1)
 	}
 
-	n.score = n.BestMove().score
+	if locked {
+		n.score = -1000
+	}
+
+	n.score += n.BestMove().score
 
 	return n
 }
