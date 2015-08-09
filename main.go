@@ -33,6 +33,7 @@ var (
 	profile = flag.String("profile", "", "Output CPU profile to file")
 
 	repeat = flag.String("repeat", "", "String for RepeaterAI to run")
+	seed   = flag.Uint64("seed", 0xFFFFFFFFFFFFFFFF, "Use specific seed for single game")
 )
 
 // multiStringValue is a flag.Value which can be specified multiple times
@@ -98,6 +99,14 @@ func main() {
 		problem, err := ParseInputProblem(f)
 		if err != nil {
 			log.Fatalf("Could not parse JSON in input file %s: %v", name, err)
+		}
+
+		if *seed != uint64(0xFFFFFFFFFFFFFFFF) { // Hijack seed
+			for i, s := range problem.SourceSeeds {
+				if *seed == s {
+					problem.SourceSeeds = problem.SourceSeeds[i : i+1]
+				}
+			}
 		}
 
 		// Take steps with random AI.
