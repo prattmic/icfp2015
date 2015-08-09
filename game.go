@@ -37,7 +37,7 @@ type Game struct {
 	// All previous commands sent to the game.
 	Commands Commands
 
-	b         *Board
+	B         *Board
 	units     []Unit
 	lcg       GameLCG
 	numUnits  int
@@ -52,7 +52,7 @@ type Game struct {
 func (g *Game) Fork() *Game {
 	n := &Game{
 		moveScore:            g.moveScore,
-		b:                    g.b.Fork(),
+		B:                    g.B.Fork(),
 		units:                g.units,
 		lcg:                  g.lcg,
 		numUnits:             g.numUnits,
@@ -74,7 +74,7 @@ func GamesFromProblem(p *InputProblem) []*Game {
 
 	for i, s := range p.SourceSeeds {
 		g := &Game{
-			b:        NewBoard(p.Width, p.Height, p.Filled),
+			B:        NewBoard(p.Width, p.Height, p.Filled),
 			lcg:      NewLCG(s),
 			units:    p.Units,
 			numUnits: p.SourceLength,
@@ -98,19 +98,19 @@ func GamesFromProblem(p *InputProblem) []*Game {
 func (g *Game) String() string {
 	return fmt.Sprintf(`Game{
 	Score:         %f,
-	b:             %s,
+	B:             %s,
 	units:         %+v,
 	lcg:           %+v,
 	numUnits:      %d,
 	unitsSent:     %d,
 	currUnit:      %+v,
 	previousMoves: %v,
-}`, g.Score(), g.b.StringLevel(2), g.units, g.lcg, g.numUnits, g.unitsSent, g.currUnit, g.previousMoves)
+}`, g.Score(), g.B.StringLevel(2), g.units, g.lcg, g.numUnits, g.unitsSent, g.currUnit, g.previousMoves)
 }
 
 func (g *Game) LockUnit(u *Unit) {
 	for _, c := range u.Members {
-		g.b.MarkFilled(c)
+		g.B.MarkFilled(c)
 	}
 }
 
@@ -134,9 +134,9 @@ func (g *Game) NextUnit() (*Unit, bool) {
 func (g *Game) placeUnit(u *Unit) bool {
 	l, r := u.widthBounds()
 	ucenter := (r - l) / 2
-	bcenter := (g.b.width-1) / 2
+	bcenter := (g.B.Width - 1) / 2
 	if ucenter == bcenter {
-		return g.b.IsValid(u)
+		return g.B.IsValid(u)
 	}
 
 	// We need to center it up.
@@ -146,7 +146,7 @@ func (g *Game) placeUnit(u *Unit) bool {
 	}
 	u.Pivot.X += rightShift
 
-	return g.b.IsValid(u)
+	return g.B.IsValid(u)
 }
 
 // updateScore computes the new Game moves score, and remembers linesCleared as
@@ -227,7 +227,7 @@ func (g *Game) Update(c Command) (bool, bool, error) {
 	// No more error beyond this point, record the command
 	g.Commands = append(g.Commands, c)
 
-	if g.b.IsValid(moved) {
+	if g.B.IsValid(moved) {
 		g.previousMoves = append(g.previousMoves, g.currUnit.DeepCopy())
 		g.currUnit = moved
 		return false, false, nil
@@ -235,7 +235,7 @@ func (g *Game) Update(c Command) (bool, bool, error) {
 
 	g.LockUnit(g.currUnit)
 
-	linesCleared := g.b.ClearRows()
+	linesCleared := g.B.ClearRows()
 	g.updateScore(linesCleared)
 
 	nextUnit, ok := g.NextUnit()
