@@ -51,7 +51,7 @@ type Game struct {
 }
 
 func (g *Game) Fork() *Game {
-	return &Game{
+	n := &Game{
 		moveScore:            g.moveScore,
 		b:                    g.b.Fork(),
 		units:                g.units,
@@ -62,6 +62,11 @@ func (g *Game) Fork() *Game {
 		previousMoves:        CopyUnits(g.previousMoves),
 		previousLinesCleared: g.previousLinesCleared,
 	}
+
+	n.Commands = make(Commands, len(g.Commands))
+	copy(n.Commands, g.Commands)
+
+	return n
 }
 
 func GamesFromProblem(p *InputProblem) []*Game {
