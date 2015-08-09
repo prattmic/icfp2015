@@ -8,9 +8,6 @@ import window from 'global/window';
 @withStyles(styles)
 class MainPage {
 
-  static propTypes = {
-  };
-
   static contextTypes = {
     onSetTitle: PropTypes.func.isRequired
   };
@@ -27,34 +24,11 @@ class MainPage {
       }
     };
 
-    //hexagonGrid.drawHexGrid(7, 10, 50, 50, true);
     hexagonGrid.drawHexGrid({
       board: board,
       columns: 7,
       rows: 5
     });
-
-
-    //let g;
-    //function scan() {
-    //  let opts = {
-    //    element: gameGrid,
-    //    width: 800,
-    //    height: 500,
-    //    spacing: 4
-    //  };
-    //
-    //  let hexes = {
-    //    width: 45, height: 45, n: 10
-    //  };
-    //
-    //  g = grid(opts, hexes);
-    //  console.log(g.grid);
-    //}
-    //
-    //scan();
-    //window.addEventListener('resize', scan);
-    //window.addEventListener('load', scan);
   }
 
   render() {
@@ -72,7 +46,6 @@ class MainPage {
       </div>
     );
   }
-
 }
 
 export default MainPage;
