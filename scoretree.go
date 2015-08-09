@@ -1,10 +1,10 @@
 package main
 
 import (
-	_ "fmt"
 )
 
 type Node struct {
+	id       int
 	score    float64
 	dead     bool // Game ending leaf.
 	d        Direction
@@ -16,6 +16,8 @@ var (
 	nary = len(dirs)
 
 	depthWeight = 100.0
+
+	uniqueId int
 )
 
 // TODO(mgyenik) make this and d Diection in Node a Command
@@ -29,9 +31,9 @@ func (n *Node) BestMove() *Node {
 	}
 
 	best := n.children[0]
-	hiscore := 0.0
+	hiscore := n.children[0].score
 	for _, c := range n.children {
-		if c.score > hiscore {
+		if !c.IsDead() && c.score > hiscore {
 			hiscore = c.score
 			best = c
 		}
@@ -49,7 +51,8 @@ func (n *Node) IsDead() bool {
 }
 
 func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
-	n := &Node{d: d}
+	n := &Node{d: d, id: uniqueId}
+	uniqueId++
 	thisgame := g.Fork()
 	c := directionToCommands[d][0]
 	done, err := thisgame.Update(c)
@@ -75,7 +78,6 @@ func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 		midY /= float64(len(g.currUnit.Members))
 
 		n.score = g.Score() + depthWeight*(midY+100.0*float64(height))
-		n.dead = true
 		return n
 	}
 

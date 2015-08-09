@@ -33,20 +33,19 @@ func (t *TreeDescender) Next() (Command, error) {
 func NewTreeDescender(g *Game) *TreeDescender {
 	// TODO(myenik) paramterize depth
 	depth := 4
+	height := 0
 
-	// This bullshit is to avoid an error on start.
-	var startNode *Node
-	bestStart := 0.0
-	for _, d := range dirs {
-		thisgame := g.Fork()
-		node := BuildScoreTree(d, thisgame, depth, 0)
-		if node.score > bestStart {
-			bestStart = node.score
-			startNode = node
-		}
+	// Fake root, there is no direction here.
+	root := &Node{}
+
+	root.children = make([]*Node, nary)
+	for i := range root.children {
+		root.children[i] = BuildScoreTree(dirs[i], g, depth-1, height+1)
 	}
 
-	return &TreeDescender{root: startNode}
+	root.score = root.BestMove().score
+
+	return &TreeDescender{root: root}
 }
 
 // TreeAI implements AI.

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -234,8 +233,6 @@ func (g *Game) Update(c Command) (bool, error) {
 
 	linesCleared := g.b.ClearRows()
 	g.updateScore(linesCleared)
-
-	log.Printf("Locked unit, current score: %f", g.Score())
 
 	nextUnit, ok := g.NextUnit()
 	if !ok {
