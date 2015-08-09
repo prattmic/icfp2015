@@ -32,8 +32,9 @@ var (
 
 	profile = flag.String("profile", "", "Output CPU profile to file")
 
-	repeat = flag.String("repeat", "", "String for RepeaterAI to run")
-	seed   = flag.Uint64("seed", 0xFFFFFFFFFFFFFFFF, "Use specific seed for single game")
+	repeat    = flag.String("repeat", "", "String for RepeaterAI to run")
+	seed      = flag.Uint64("seed", 0xFFFFFFFFFFFFFFFF, "Use specific seed for single game")
+	customtag = flag.String("customtag", "", "Custom tag for solution")
 )
 
 // multiStringValue is a flag.Value which can be specified multiple times
@@ -155,10 +156,13 @@ func main() {
 				}
 			}
 
+			if *customtag == "" {
+				*customtag = fmt.Sprintf("Score: %v", a.Game().Score())
+			}
 			output = append(output, OutputEntry{
 				ProblemId: problem.Id,
 				Seed:      problem.SourceSeeds[gi],
-				Tag:       fmt.Sprintf("Score: %v", a.Game().Score()),
+				Tag:       *customtag,
 				Solution:  a.Game().Commands.String(),
 			})
 		}
