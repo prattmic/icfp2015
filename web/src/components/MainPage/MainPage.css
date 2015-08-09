@@ -1,0 +1,16 @@
+@import '../variables.css';
+
+.MainPage {
+  background-color: black;
+}
+
+.MainPage-container {
+  margin: 0 auto;
+  padding: 0 0 40px;
+  max-width: var(--max-content-width);
+}
+
+.hexagon-game-grid {
+  width: 800px;
+  height: 600px;
+}

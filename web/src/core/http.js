@@ -1,5 +1,3 @@
-/*! React Starter Kit | MIT License | http://www.reactstarterkit.com/ */
-
 import request from 'superagent';
 import ExecutionEnvironment from 'fbjs/lib/ExecutionEnvironment';
 

@@ -1,5 +1,3 @@
-/*! React Starter Kit | MIT License | http://www.reactstarterkit.com/ */
-
 import { join } from 'path';
 import { Router } from 'express';
 import jade from 'jade';
