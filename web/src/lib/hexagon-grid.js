@@ -49,7 +49,7 @@ class HexagonGrid {
 
     for (let col = 0; col < options.columns; col++) {
       for (let row = 0; row < options.rows; row++) {
-        let origin = this.getHexOrigin(getIfOffset(col, row));
+        let origin = this.getHexOrigin(this.getIfOffset(col, row));
 
         let hexPosition = this.getHexPosition(col, row, origin.x, origin.y);
 
