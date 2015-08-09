@@ -34,7 +34,7 @@ func (t *TreeDescender) Next() (Command, error) {
 
 func NewTreeDescender(g *Game) *TreeDescender {
 	// TODO(myenik) paramterize depth
-	depth := 4
+	depth := 5
 	height := 0
 
 	// Fake root, there is no direction here.

@@ -16,7 +16,7 @@ var (
 	dirs = []Direction{SE, SW, E, W, CW, CCW}
 	nary = len(dirs)
 
-	depthWeight = 100.0
+	depthWeight = 10.0
 
 	uniqueId int
 )
@@ -57,8 +57,8 @@ func (n *Node) IsDead() bool {
 
 func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 	n := &Node{
-		d: d,
-		id: uniqueId,
+		d:       d,
+		id:      uniqueId,
 		weights: make(map[string]float64),
 	}
 	uniqueId++
@@ -90,7 +90,7 @@ func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 	midY /= float64(len(n.game.currUnit.Members))
 
 	n.weights["gameScore"] = n.game.Score()
-	n.weights["depth"] = depthWeight*(midY+float64(height))
+	n.weights["depth"] = depthWeight * (midY + float64(height))
 
 	n.score = n.weights["gameScore"] + n.weights["depth"]
 

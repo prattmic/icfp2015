@@ -177,3 +177,25 @@ func (b *Board) IsValid(u *Unit) bool {
 
 	return true
 }
+
+func (b *Board) GapBelow(c Cell, layers int) bool {
+	if layers == 0 {
+		return false
+	}
+
+	sw := c.Translate(SW)
+	se := c.Translate(SE)
+	swEmpty := b.InBounds(sw) && !b.IsFilled(sw)
+	seEmpty := b.InBounds(se) && !b.IsFilled(se)
+	return swEmpty || seEmpty || b.GapBelow(sw, layers-1) || b.GapBelow(se, layers-1)
+}
+
+func (b *Board) GapBelowAny(u *Unit) bool {
+	for _, c := range u.Members {
+		if b.GapBelow(c, 2) {
+			return true
+		}
+	}
+
+	return false
+}
