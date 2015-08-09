@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 )
 
@@ -117,13 +116,12 @@ func (c Command) String() string {
 }
 
 func (c *Commands) String() string {
-	var b bytes.Buffer
-
-	for _, l := range *c {
-		b.WriteByte(byte(l))
+	b := make([]byte, len(*c))
+	for i, v := range *c {
+		b[i] = byte(v)
 	}
 
-	return b.String()
+	return string(b)
 }
 
 type offset struct {
