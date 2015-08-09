@@ -158,7 +158,7 @@ func main() {
 			output = append(output, OutputEntry{
 				ProblemId: problem.Id,
 				Seed:      problem.SourceSeeds[gi],
-				Tag:       "",
+				Tag:       fmt.Sprintf("Score: %v", a.Game().Score()),
 				Solution:  a.Game().Commands.String(),
 			})
 		}
