@@ -7,34 +7,34 @@ import (
 
 type BoardCell struct {
 	Cell
-	filled bool
+	Filled bool
 }
 
 // Boards facilitate search/simulation.
 // Indexing into a grid with (x, y) gives
 // you the cell on column x, in row y.
 type Board struct {
-	width  int
-	height int
-	cells  [][]BoardCell
+	Width  int
+	Height int
+	Cells  [][]BoardCell
 }
 
 func NewBoard(w, h int, filled []Cell) *Board {
-	b := &Board{width: w, height: h}
+	b := &Board{Width: w, Height: h}
 
 	// Make columns, according to [w][h]Cell.
-	b.cells = make([][]BoardCell, w)
+	b.Cells = make([][]BoardCell, w)
 
 	// Fill out each column with one spot for each row.
 	for i := 0; i < w; i++ {
-		b.cells[i] = make([]BoardCell, h)
+		b.Cells[i] = make([]BoardCell, h)
 	}
 
 	// Mark cell coordinates
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
-			b.cells[x][y].X = x
-			b.cells[x][y].Y = y
+			b.Cells[x][y].X = x
+			b.Cells[x][y].Y = y
 		}
 	}
 
@@ -47,22 +47,22 @@ func NewBoard(w, h int, filled []Cell) *Board {
 }
 
 func (b *Board) Fork() *Board {
-	w := b.width
-	h := b.height
-	bcopy := &Board{width: w, height: h}
+	w := b.Width
+	h := b.Height
+	bcopy := &Board{Width: w, Height: h}
 
 	// Make columns, according to [w][h]Cell.
-	bcopy.cells = make([][]BoardCell, w)
+	bcopy.Cells = make([][]BoardCell, w)
 
 	// Fill out each column with one spot for each row.
 	for i := 0; i < w; i++ {
-		bcopy.cells[i] = make([]BoardCell, h)
+		bcopy.Cells[i] = make([]BoardCell, h)
 	}
 
 	// Copy cells.
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
-			bcopy.cells[x][y] = b.cells[x][y]
+			bcopy.Cells[x][y] = b.Cells[x][y]
 		}
 	}
 
@@ -78,7 +78,7 @@ func (b *Board) StringLevel(n int) string {
 %swidth:  %d,
 %sheight: %d,
 %scells:  %+v,
-%s}`, indent, b.width, indent, b.height, indent, b.cells, endindent)
+%s}`, indent, b.Width, indent, b.Height, indent, b.Cells, endindent)
 }
 
 func (b *Board) String() string {
@@ -86,26 +86,26 @@ func (b *Board) String() string {
 }
 
 func (b *Board) BoardCell(c Cell) *BoardCell {
-	return &b.cells[c.X][c.Y]
+	return &b.Cells[c.X][c.Y]
 }
 
 func (b *Board) MarkFilled(c Cell) {
-	b.BoardCell(c).filled = true
+	b.BoardCell(c).Filled = true
 }
 
 func (b *Board) IsFilled(c Cell) bool {
-	return b.BoardCell(c).filled
+	return b.BoardCell(c).Filled
 }
 
 func (b *Board) InBounds(c Cell) bool {
 	isNotTooLow := c.X >= 0 && c.Y >= 0
-	isNotTooHigh := c.X < b.width && c.Y < b.height
+	isNotTooHigh := c.X < b.Width && c.Y < b.Height
 	return isNotTooLow && isNotTooHigh
 }
 
 func (b *Board) RowIsFilled(row int) bool {
-	for i := 0; i < b.width; i++ {
-		if !b.cells[i][row].filled {
+	for i := 0; i < b.Width; i++ {
+		if !b.Cells[i][row].Filled {
 			return false
 		}
 	}
@@ -114,8 +114,8 @@ func (b *Board) RowIsFilled(row int) bool {
 }
 
 func (b *Board) UnfillRow(row int) bool {
-	for i := 0; i < b.width; i++ {
-		b.cells[i][row].filled = false
+	for i := 0; i < b.Width; i++ {
+		b.Cells[i][row].Filled = false
 	}
 
 	return true
@@ -128,8 +128,8 @@ func (b *Board) TranslateRowDown(row int) {
 		dir = SE
 	}
 
-	for i := 0; i < b.width; i++ {
-		if b.cells[i][row].filled {
+	for i := 0; i < b.Width; i++ {
+		if b.Cells[i][row].Filled {
 			cell := Cell{X: i, Y: row}
 			b.MarkFilled(cell.Translate(dir))
 		}
@@ -139,7 +139,7 @@ func (b *Board) TranslateRowDown(row int) {
 // ClearRows clears the lowest filled row and moves the tiles down.
 // It returns true if a row was cleared.
 func (b *Board) ClearRow() bool {
-	for i := b.height - 1; i >= 0; i-- {
+	for i := b.Height - 1; i >= 0; i-- {
 		if b.RowIsFilled(i) {
 			for j := i; j >= 0; j-- {
 				b.UnfillRow(j)

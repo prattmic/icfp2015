@@ -108,7 +108,7 @@ func NewGameRenderer(g *Game, border int, size int) *GameRenderer {
 	case largeSize:
 		hs = largeHex
 	}
-	return &GameRenderer{width: g.b.width, height: g.b.height, border: border, hs: hs}
+	return &GameRenderer{width: g.B.Width, height: g.B.Height, border: border, hs: hs}
 }
 
 func gameFillColor(g *Game, x, y int) image.Image {
@@ -118,7 +118,7 @@ func gameFillColor(g *Game, x, y int) image.Image {
 		return &red
 	}
 
-	if g.b.IsFilled(c) {
+	if g.B.IsFilled(c) {
 		return &yellow
 	}
 
@@ -126,7 +126,7 @@ func gameFillColor(g *Game, x, y int) image.Image {
 }
 
 // TODO(myenik) Render Unit
-// TODO(myenik)  Merge this with RenderInputProblem?
+// TODO(myenik) Merge this with RenderInputProblem?
 func (r *GameRenderer) AddFrame(g *Game) {
 	height := r.height
 	width := r.width
