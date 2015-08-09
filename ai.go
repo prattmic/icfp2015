@@ -6,6 +6,11 @@ import (
 	"math/rand"
 )
 
+var (
+	errTreeExhausted = errors.New("Tree not deep enough!")
+	errNoMoves       = errors.New("Out of moves!")
+)
+
 // MovePermuter provides each of the possible moves in a random order.
 // TODO)prattmic): Better name...
 type MovePermuter struct {
@@ -34,6 +39,45 @@ func (m *MovePermuter) Next() (Command, error) {
 	c := directionToCommands[move][rand.Intn(len(directionToCommands[move]))]
 
 	return c, nil
+}
+
+type TreeDescender struct {
+	root *Node
+}
+
+func (t *TreeDescender) Next() (Command, error) {
+	if t.root.IsDead() {
+		return 0, errNoMoves
+	}
+
+	if t.root.IsLeaf() {
+		return 0, errTreeExhausted
+	}
+
+	next := t.root.BestMove()
+	t.root = next
+
+	// TODO(myenik) First command is *best* command!
+	return directionToCommands[next.d][0], nil
+}
+
+func NewTreeDescender(g *Game) *TreeDescender {
+	// TODO(myenik) paramterize depth
+	depth := 4
+
+	// This bullshit is to avoid an error on start.
+	var startNode *Node
+	bestStart := 0.0
+	for _, d := range dirs {
+		thisgame := g.Fork()
+		node := BuildScoreTree(d, thisgame, depth, 0)
+		if node.score > bestStart {
+			bestStart = node.score
+			startNode = node
+		}
+	}
+
+	return &TreeDescender{root: startNode}
 }
 
 // AI wins the game!
@@ -120,4 +164,33 @@ func (a *AI) Next() (bool, error) {
 
 	a.Game = best.game
 	return best.done, best.err
+}
+
+type TreeAI struct {
+	Game *Game
+}
+
+func NewTreeAI(g *Game) *TreeAI {
+	return &TreeAI{
+		Game: g,
+	}
+}
+
+// Next steps the game, returning true when the game is done.
+func (a *TreeAI) Next() (bool, error) {
+	t := NewTreeDescender(a.Game)
+	c, err := t.Next()
+	if err == errNoMoves {
+		// No possible moves, we are stuck!
+		return false, err
+	}
+
+	if err == errTreeExhausted {
+		// Need to build new tree.
+		return false, err
+	}
+
+	done, err := a.Game.Update(c)
+	log.Printf("Update(%s) -> %v, %v", c, done, err)
+	return done, err
 }
