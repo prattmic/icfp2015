@@ -201,11 +201,11 @@ func (g *Game) Score() float64 {
 	return g.moveScore + float64(g.PowerScore())
 }
 
-// Update returns a bool indicating whether the game is done, and err to indicate and error (backwards move).
-func (g *Game) Update(c Command) (bool, error) {
+// Update returns a bool indicating whether a piece was locked, the game is done, and err to indicate and error (backwards move).
+func (g *Game) Update(c Command) (bool, bool, error) {
 	d, ok := commandToDirection[c]
 	if !ok {
-		return true, fmt.Errorf("unknown command %c", c)
+		return false, true, fmt.Errorf("unknown command %c", c)
 	}
 
 	var moved *Unit
@@ -217,7 +217,7 @@ func (g *Game) Update(c Command) (bool, error) {
 	}
 
 	if moved.OverlapsAny(g.previousMoves) {
-		return true, fmt.Errorf("moved unit from %+v to %+v and it overlaps with a previous move!", g.currUnit, moved)
+		return false, true, fmt.Errorf("moved unit from %+v to %+v and it overlaps with a previous move!", g.currUnit, moved)
 	}
 
 	// No more error beyond this point, record the command
@@ -226,7 +226,7 @@ func (g *Game) Update(c Command) (bool, error) {
 	if g.b.IsValid(moved) {
 		g.previousMoves = append(g.previousMoves, g.currUnit.DeepCopy())
 		g.currUnit = moved
-		return false, nil
+		return false, false, nil
 	}
 
 	g.LockUnit(g.currUnit)
@@ -237,15 +237,15 @@ func (g *Game) Update(c Command) (bool, error) {
 	nextUnit, ok := g.NextUnit()
 	if !ok {
 		// Game is done.
-		return true, nil
+		return true, true, nil
 	}
 
 	if ok := g.placeUnit(nextUnit); !ok {
 		// Game is done.
-		return true, nil
+		return true, true, nil
 	}
 
 	g.previousMoves = g.previousMoves[:0]
 	g.currUnit = nextUnit
-	return false, nil
+	return true, false, nil
 }

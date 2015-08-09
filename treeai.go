@@ -77,7 +77,7 @@ func (a *TreeAI) Next() (bool, error) {
 		return false, err
 	}
 
-	done, err := a.game.Update(c)
+	_, done, err := a.game.Update(c)
 	log.Printf("Update(%s) -> %v, %v", c, done, err)
 	return done, err
 }
