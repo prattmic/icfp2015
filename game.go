@@ -228,8 +228,8 @@ func (g *Game) Update(c Command) (bool, bool, error) {
 	g.Commands = append(g.Commands, c)
 
 	if g.B.IsValid(moved) {
-		g.previousMoves = append(g.previousMoves, g.currUnit.DeepCopy())
 		g.currUnit = moved
+		g.previousMoves = append(g.previousMoves, g.currUnit.DeepCopy())
 		return false, false, nil
 	}
 
