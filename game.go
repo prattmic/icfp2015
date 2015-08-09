@@ -133,14 +133,12 @@ func (g *Game) NextUnit() (*Unit, bool) {
 
 func (g *Game) placeUnit(u *Unit) bool {
 	l, r := u.widthBounds()
-	ucenter := (r - l) / 2
-	bcenter := (g.B.Width - 1) / 2
-	if ucenter == bcenter {
-		return g.B.IsValid(u)
-	}
 
-	// We need to center it up.
-	rightShift := bcenter - ucenter
+	uwidth := r - l + 1
+	extraSpace := g.B.Width - uwidth
+
+	// Center up, rounding down, leaving less space on the left.
+	rightShift := extraSpace / 2
 	for i := range u.Members {
 		u.Members[i].X += rightShift
 	}
