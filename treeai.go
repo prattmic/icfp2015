@@ -74,6 +74,7 @@ func (a *TreeAI) Next() (bool, error) {
 
 	if *graph != "" {
 		name := fmt.Sprintf("%s.%d.dot", *graph, a.step)
+		log.Printf("file: %s", name)
 		graph := t.root.Graph()
 		if err := ioutil.WriteFile(name, []byte(graph), 0644); err != nil {
 			log.Fatalf("Failed to write graph: %v", err)
@@ -91,7 +92,7 @@ func (a *TreeAI) Next() (bool, error) {
 		return false, err
 	}
 
-	_, done, err := a.game.Update(c)
-	log.Printf("Update(%s) -> %v, %v", c, done, err)
+	locked, done, err := a.game.Update(c)
+	log.Printf("Update(%s) -> locked %v done %v, %v", c, locked, done, err)
 	return done, err
 }
