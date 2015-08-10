@@ -90,7 +90,7 @@ func newGameHandler(w http.ResponseWriter, r *http.Request) {
 			BoardDelta: deltas,
 			Unit:       game.currUnit.DeepCopy(),
 			Score:      game.Score(),
-			AI:         aiFlag,
+			AI:         aiFlags[0],
 		}
 
 		prevBoard = game.B.Fork()

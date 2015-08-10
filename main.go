@@ -28,7 +28,7 @@ var (
 	// These are registered in init(), below.
 	inputFiles   multiStringValue
 	powerPhrases multiStringValue
-	aiFlag       string
+	aiFlags      multiStringValue = []string{"mcai", "chanterai", "treeai"}
 
 	timeLimit = flag.Int("t", 0, "Time limit, in seconds, to produce output.")
 
@@ -78,6 +78,12 @@ func ArgsOk() error {
 	}
 
 	return nil
+}
+
+type AISolution struct{
+	name string
+	commands string
+	score float64
 }
 
 func main() {
@@ -154,69 +160,96 @@ func main() {
 				break
 			}
 
-			var renderer *GameRenderer
-			if *render {
-				renderer = NewGameRenderer(g, *border, *hexsize)
-			}
-
-			log.Printf("Playing %+v", g)
-			a := NewAI(g, aiFlag, *repeat)
-
-			i := 1
-
-		runGame:
-			for {
-				select {
-				case <-timeout:
-					timedOut = true
-					break runGame
-				default:
+			var aiSolutions []AISolution
+			for _, ai := range aiFlags {
+				if timedOut {
+					break
 				}
 
-				log.Printf("Step %d", i)
+				var renderer *GameRenderer
 				if *render {
-					renderer.AddFrame(a.Game())
+					renderer = NewGameRenderer(g, *border, *hexsize)
 				}
 
-				done, err := a.Next()
-				if done {
-					log.Println("Game done!")
-					break
-				} else if err != nil {
-					log.Printf("a.Next error: %v", err)
-					break
+				aiGame := g.Fork()
+
+				log.Printf("Playing %+v", aiGame)
+				log.Printf("Using AI: %s", ai)
+				a := NewAI(aiGame, ai, *repeat)
+
+				i := 1
+
+			runGame:
+				for {
+					select {
+					case <-timeout:
+						timedOut = true
+						break runGame
+					default:
+					}
+
+					log.Printf("Step %d", i)
+					if *render {
+						renderer.AddFrame(a.Game())
+					}
+
+					done, err := a.Next()
+					if done {
+						log.Println("Game done!")
+						break
+					} else if err != nil {
+						log.Printf("a.Next error: %v", err)
+						break
+					}
+					i++
 				}
-				i++
+
+				log.Printf("Commands: %s", a.Game().Commands)
+				a.Game().WriteFinalCommands()
+				log.Printf("Final Commands: %s", a.Game().FinalCommands)
+				log.Printf("Final Score: %f", a.Game().FinalScore())
+
+				if *render {
+					gifname := fmt.Sprintf("%s_game%d.gif", name, gi)
+					gif, err := os.Create(gifname)
+					if err != nil {
+						log.Fatalf("Failed to open output file %s: %v\n", gifname, err)
+					}
+
+					renderer.OutputGIF(gif, *gifdelay)
+					if *display {
+						c := exec.Command("sensible-browser", gifname)
+						c.Start()
+					}
+				}
+
+				aiSolutions = append(aiSolutions, AISolution{
+					name: ai,
+					commands: a.Game().FinalCommands.String(),
+					score: a.Game().FinalScore(),
+				})
 			}
 
-			log.Printf("Commands: %s", a.Game().Commands)
-			a.Game().WriteFinalCommands()
-			log.Printf("Final Commands: %s", a.Game().FinalCommands)
-			log.Printf("Final Score: %f", a.Game().FinalScore())
-
-			if *render {
-				gifname := fmt.Sprintf("%s_game%d.gif", name, gi)
-				gif, err := os.Create(gifname)
-				if err != nil {
-					log.Fatalf("Failed to open output file %s: %v\n", gifname, err)
-				}
-
-				renderer.OutputGIF(gif, *gifdelay)
-				if *display {
-					c := exec.Command("sensible-browser", gifname)
-					c.Start()
+			best := AISolution{score: -1.0}
+			for _, a := range aiSolutions {
+				if a.score > best.score {
+					best = a
 				}
 			}
+
+			log.Printf("All solutions: %+v", aiSolutions)
+			log.Printf("Best solution: %+v", best)
 
 			mytag := *customtag
 			if mytag == "" {
-				mytag = fmt.Sprintf("Final Score: %v", a.Game().FinalScore())
+				mytag = fmt.Sprintf("Final Score: %v", best.score)
 			}
+
 			output = append(output, OutputEntry{
 				ProblemId: problem.Id,
 				Seed:      problem.SourceSeeds[gi],
 				Tag:       mytag,
-				Solution:  a.Game().FinalCommands.String(),
+				Solution:  best.commands,
 			})
 		}
 	}
@@ -244,6 +277,6 @@ func init() {
 		}
 	}
 
-	flag.StringVar(&aiFlag, "ai", "treeai", fmt.Sprintf("AI to use:%s", keys))
+	flag.Var(&aiFlags, "ai", fmt.Sprintf("AI to use (can be multiple):%s", keys))
 
 }
