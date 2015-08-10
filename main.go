@@ -243,6 +243,6 @@ func init() {
 		}
 	}
 
-	flag.StringVar(&aiFlag, "ai", "treeai", fmt.Sprintf("AI to use:%s", keys))
+	flag.StringVar(&aiFlag, "ai", "mcai", fmt.Sprintf("AI to use:%s", keys))
 
 }

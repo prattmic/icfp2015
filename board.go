@@ -192,7 +192,7 @@ func (b *Board) GapBelow(c Cell, layers int) bool {
 
 func (b *Board) GapBelowAny(u *Unit) bool {
 	for _, c := range u.Members {
-		if b.GapBelow(c, 2) {
+		if b.GapBelow(c, 3) {
 			return true
 		}
 	}
