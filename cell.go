@@ -98,12 +98,27 @@ var commandToDirection = map[Command]Direction{
 }
 
 var directionToCommands = map[Direction]Commands{
-	W:   Commands{'!', '\'', 'p', '.', '0', '3'},
-	E:   Commands{'e', 'c', 'b', 'f', 'y', '2'},
-	SW:  Commands{'i', 'g', 'h', 'a', 'j', '4'},
+	W:   Commands{'p', '\'', '!', '.', '0', '3'},
+	E:   Commands{'b', 'c', 'e', 'f', 'y', '2'},
+	SW:  Commands{'a', 'g', 'h', 'i', 'j', '4'},
 	SE:  Commands{'l', 'm', 'n', 'o', ' ', '5'},
 	CW:  Commands{'d', 'q', 'r', 'v', 'z', '1'},
 	CCW: Commands{'k', 's', 't', 'u', 'w', 'x'},
+}
+
+var normalizedPhrases multiStringValue
+
+func normalizePhrases() {
+	n := make([]string, len(powerPhrases))
+	for i, phrase := range powerPhrases {
+		s := make([]byte, len(phrase))
+		for j, c := range phrase {
+			d := commandToDirection[Command(c)]
+			s[j] = byte(directionToCommands[d][0])
+		}
+		n[i] = string(s)
+	}
+	normalizedPhrases = n
 }
 
 func (c Command) String() string {
