@@ -33,7 +33,7 @@ class GameFetcher extends React.Component {
     xhr(url.format({
       pathname: '/api/newgame',
       query: {
-        ai: options.ai || 'treeai',
+        ai: options.ai || 'chanterai',
         qualifier: options.qualifier,
         repeater: options.repeater || ""
       }
