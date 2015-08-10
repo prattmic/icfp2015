@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime/pprof"
+	"time"
 )
 
 var (
@@ -26,7 +27,7 @@ var (
 	powerPhrases multiStringValue
 	aiFlag       string
 
-	timeLimit = flag.Int("t", 1000, "Time limit, in seconds, to produce output.")
+	timeLimit = flag.Int("t", 0, "Time limit, in seconds, to produce output.")
 
 	// TODO(myenik) Lol we should think about how to deal with this one...
 	memLimit = flag.Int("m", 1000, "Memory limit, in megabytes, to produce output")
@@ -105,6 +106,22 @@ func main() {
 		return
 	}
 
+	var timeout <-chan time.Time
+	timedOut := false
+	if *timeLimit > 0 {
+		var t time.Duration
+		if *timeLimit > 10 {
+			// Usually provided a 5 second buffer
+			t = time.Duration(*timeLimit - 5)
+		} else {
+			// ... but with hardly any time at all, use
+			// 90%.
+			t = time.Duration(0.9 * float64(*timeLimit))
+		}
+
+		timeout = time.After(t * time.Second)
+	}
+
 	var output []OutputEntry
 	for _, name := range inputFiles {
 		log.Printf("Processing %s", name)
@@ -130,6 +147,10 @@ func main() {
 		// Take steps with random AI.
 		// TODO(myenik) make rendering less gross/if'd out everywhere.
 		for gi, g := range GamesFromProblem(problem) {
+			if timedOut {
+				break
+			}
+
 			var renderer *GameRenderer
 			if *render {
 				renderer = NewGameRenderer(g, *border, *hexsize)
@@ -139,7 +160,16 @@ func main() {
 			a := NewAI(g, aiFlag)
 
 			i := 1
+
+		runGame:
 			for {
+				select {
+				case <-timeout:
+					timedOut = true
+					break runGame
+				default:
+				}
+
 				log.Printf("Step %d", i)
 				if *render {
 					renderer.AddFrame(a.Game())
