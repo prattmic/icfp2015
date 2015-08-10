@@ -53,7 +53,7 @@ class HexagonGrid {
 
         let hexPosition = this.getHexPosition(col, row, origin.x, origin.y);
 
-        let cell = board['' + col + row] || this.defaultCell;
+        let cell = board['x' + col + 'y' +  row] || this.defaultCell;
         this.drawHex(hexPosition.x, hexPosition.y, cell);
       }
     }

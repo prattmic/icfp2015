@@ -75,20 +75,20 @@ class MainPage extends React.Component {
           gridCell = this.props.filledCell;
         }
 
-        board['' + cell.X + cell.Y] = extend(gridCell);
+        board['x' + cell.X + 'y' + cell.Y] = extend(gridCell);
       });
       return board;
     }, {});
 
     if (data.Unit.Members) {
       data.Unit.Members.forEach((cell) => {
-        renderBoard['' + cell.X + cell.Y] = extend(this.props.droppingCell);
+        renderBoard['x' + cell.X + 'y' +  cell.Y] = extend(this.props.droppingCell);
       });
     }
 
     let pivot = data.Unit.Pivot;
-    if (pivot && renderBoard['' + pivot.X + pivot.Y]) {
-      renderBoard['' + pivot.X + pivot.Y].Dot = true;
+    if (pivot && renderBoard['x' + pivot.X + 'y' +  pivot.Y]) {
+      renderBoard['x' + pivot.X + 'y' +  pivot.Y].Dot = true;
     }
 
     return {
