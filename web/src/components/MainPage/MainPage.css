@@ -26,3 +26,14 @@
   min-width: 280px;
   background-color: white;
 }
+.panel-items {
+  padding: 4px;
+}
+
+.new-game {
+  margin-top: 8px;
+}
+
+.max-width {
+  width: 100%;
+}

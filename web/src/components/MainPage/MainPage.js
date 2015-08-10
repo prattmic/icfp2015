@@ -105,6 +105,13 @@ class MainPage extends React.Component {
     this.drawBoard(this.props.gameData[frameIndex || this.state.frameIndex]);
   }
 
+  submitNewGame(e) {
+    e.preventDefault();
+    this.props.fetchNewGame({
+      qualifier: this.refs.selectQualifier.value.trim()
+    });
+  }
+
   togglePause(paused) {
     if (this.state.paused === paused) return;
 
@@ -117,6 +124,14 @@ class MainPage extends React.Component {
     this.context.onSetTitle('ICFP!');
     let gameData = this.props.gameData[this.state.frameIndex] || {};
 
+    var qualifiers = this.props.qualifiers.map((qualifier) => {
+      return (
+        <option key={qualifier}>
+          {qualifier}
+        </option>
+      );
+    });
+
     return (
       <div className="MainPage">
         <div className="MainPage-container">
@@ -126,15 +141,29 @@ class MainPage extends React.Component {
             </canvas>
           </div>
           <div className="panel-container">
-            <h4>Game Controls</h4>
-            <h5>Current Frame: {this.state.frameIndex}</h5>
-            <h5>Current AI: {gameData.AI}</h5>
-            <h5>Current Score: {gameData.Score}</h5>
-            <br/>
-            <button onClick={this.nextFrame.bind(this, this.state.frameIndex + 1)}>Next Frame</button>
-            <button onClick={this.togglePause.bind(this, !this.state.paused)}>
-              {this.state.paused ? 'Resume' : 'Pause'}
-            </button>
+            <div className="panel-items">
+              <h4 className="max-width">Game Controls</h4>
+              <span className="max-width">Current Frame: {this.state.frameIndex}</span>
+              <br/>
+              <span className="max-width">Current AI: {gameData.AI}</span>
+              <br/>
+              <span className="max-width">Current Score: {gameData.Score}</span>
+              <br/>
+              <button onClick={this.nextFrame.bind(this, this.state.frameIndex + 1)}>Next Frame</button>
+              <button onClick={this.togglePause.bind(this, !this.state.paused)}>
+                {this.state.paused ? 'Resume' : 'Pause'}
+              </button>
+              <br/>
+
+              <h4 className="max-width">New Game Options</h4>
+              <form className="new-game" onSubmit={this.submitNewGame.bind(this)}>
+                <label className="qualifier-label max-width" htmlFor="qualifier">Qualifier</label>
+                <select className="qualifier-select max-width" name="qualifier" ref="selectQualifier">
+                  {qualifiers}
+                </select>
+                <input className="new-game-submit max-width" type="submit" value="New Game" />
+              </form>
+            </div>
           </div>
         </div>
       </div>
