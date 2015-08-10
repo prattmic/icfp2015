@@ -15,29 +15,41 @@ class MainPage extends React.Component {
     onSetTitle: PropTypes.func.isRequired
   };
 
-  state = {frameIndex: 0};
+  state = {
+    frameIndex: 0,
+    interval: 200
+  };
 
   componentDidMount() {
     this.setState({
       mounted: true
     });
 
-    this.redrawBoard();
+    this.playFrames(this.state.interval);
 
-    setInterval(() => {
-      if (this.playNext()) {
-        this.nextFrame();
-      }
-    }, 200);
+    this.redrawBoard(this.state.frameIndex);
 
     window.addEventListener('resize', this.redrawBoard.bind(this));
     window.addEventListener('load', this.redrawBoard.bind(this));
   }
 
-  componentWillUpdate() {
-    if (this.state.mounted) {
-      this.redrawBoard();
+  componentWillUpdate(nextProps, nextState) {
+    if (!this.state.mounted) {
+      return;
     }
+
+    if (this.state.frameIndex !== nextState.frameIndex) {
+      this.redrawBoard(nextState.frameIndex);
+    }
+
+    if (this.state.interval !== nextState.interval) {
+      this.stopFrames();
+      this.playFrames(nextState.interval);
+    }
+  }
+
+  componentWillUnmount() {
+    this.stopFrames();
   }
 
   drawBoard(frame) {
@@ -68,12 +80,16 @@ class MainPage extends React.Component {
       return board;
     }, {});
 
-    data.Unit.Members.forEach((cell) => {
-      renderBoard['' + cell.X + cell.Y] = extend(this.props.droppingCell);
-    });
+    if (data.Unit.Members) {
+      data.Unit.Members.forEach((cell) => {
+        renderBoard['' + cell.X + cell.Y] = extend(this.props.droppingCell);
+      });
+    }
 
     let pivot = data.Unit.Pivot;
-    renderBoard['' + pivot.X + pivot.Y].Dot = true;
+    if (pivot && renderBoard['' + pivot.X + pivot.Y]) {
+      renderBoard['' + pivot.X + pivot.Y].Dot = true;
+    }
 
     return {
       columns: data.Board.Width,
@@ -93,6 +109,22 @@ class MainPage extends React.Component {
     });
   }
 
+  playFrames(interval) {
+    this.setState({
+      playingFrames: setInterval(() => {
+        if (this.playNext()) {
+          this.nextFrame();
+        }
+      }, interval)
+    });
+  }
+
+  stopFrames() {
+    if (this.state.playingFrames) {
+      clearInterval(this.state.playingFrames);
+    }
+  }
+
   playNext() {
     if (this.state.paused) {
       return false;
@@ -102,7 +134,15 @@ class MainPage extends React.Component {
   }
 
   redrawBoard(frameIndex) {
-    this.drawBoard(this.props.gameData[frameIndex || this.state.frameIndex]);
+    this.drawBoard(this.props.gameData[frameIndex]);
+  }
+
+  setGameSpeed(e) {
+    e.preventDefault();
+    console.log('setting speed, ', parseInt(this.refs.setSpeedInput.value.trim()));
+    this.setState({
+      interval: parseInt(this.refs.setSpeedInput.value.trim())
+    });
   }
 
   submitNewGame(e) {
@@ -118,6 +158,12 @@ class MainPage extends React.Component {
     this.setState({
       paused: paused
     });
+
+    if (paused) {
+      this.stopFrames();
+    } else {
+      this.playFrames(this.state.interval);
+    }
   }
 
   render() {
@@ -131,6 +177,8 @@ class MainPage extends React.Component {
         </option>
       );
     });
+
+    let interval = this.state.interval;
 
     return (
       <div className="MainPage">
@@ -154,6 +202,13 @@ class MainPage extends React.Component {
                 {this.state.paused ? 'Resume' : 'Pause'}
               </button>
               <br/>
+
+              <form className="update-speed" onSubmit={this.setGameSpeed.bind(this)}>
+                <label className="setSpeed-label max-width" htmlFor="setSpeed">Speed (ms)</label>
+                <input className="setSpeed-select max-width" type="text"
+                       name="setSpeed" ref="setSpeedInput" defaultValue={interval} />
+                <input className="setSpeed-submit max-width" type="submit" value="Set Speed" />
+              </form>
 
               <h4 className="max-width">New Game Options</h4>
               <form className="new-game" onSubmit={this.submitNewGame.bind(this)}>
