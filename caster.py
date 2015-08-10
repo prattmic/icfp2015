@@ -18,7 +18,7 @@ def send_score(problemId, seed, tag, solution):
 
 
 cmd = '{} -ai {} -f qualifiers/problem_{}.json'
-for problem_id in xrange(2):
+for problem_id in xrange(25):
     proc = subprocess.Popen(cmd.format(program, ai, problem_id), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     raw_data = proc.communicate()
