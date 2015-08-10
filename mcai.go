@@ -202,7 +202,7 @@ type MonteCarloid struct {
 	root *MCNode
 }
 
-func NewMonteCarloid(g *Game) AI {
+func NewMonteCarloid(g *Game, _ string) AI {
 	newroot := &MCNode{
 		g:      g,
 		probed: make([]*MCNode, int(NOP)+1),

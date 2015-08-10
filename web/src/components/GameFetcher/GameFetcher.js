@@ -34,7 +34,8 @@ class GameFetcher extends React.Component {
       pathname: '/api/newgame',
       query: {
         ai: options.ai || 'treeai',
-        qualifier: options.qualifier
+        qualifier: options.qualifier,
+        repeater: options.repeater || ""
       }
     }), (err, resp, body) => {
       this.setState({

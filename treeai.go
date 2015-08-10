@@ -56,7 +56,7 @@ type TreeAI struct {
 	step int
 }
 
-func NewTreeAI(g *Game) AI {
+func NewTreeAI(g *Game, _ string) AI {
 	return &TreeAI{
 		game: g,
 	}
@@ -143,7 +143,7 @@ type RollingTreeAI struct {
 	r    *RollingTreeDescender
 }
 
-func NewRollingTreeAI(g *Game) AI {
+func NewRollingTreeAI(g *Game, _ string) AI {
 	return &RollingTreeAI{
 		game: g,
 		r:    NewRollingTreeDescender(g),

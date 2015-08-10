@@ -160,7 +160,7 @@ func main() {
 			}
 
 			log.Printf("Playing %+v", g)
-			a := NewAI(g, aiFlag)
+			a := NewAI(g, aiFlag, *repeat)
 
 			i := 1
 

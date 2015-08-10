@@ -14,7 +14,7 @@ type AI interface {
 	Game() *Game
 }
 
-var ais = map[string]func(*Game) AI{
+var ais = map[string]func(*Game, string) AI{
 	"treeai":        NewTreeAI,
 	"lookaheadai":   NewLookaheadAI,
 	"repeaterai":    NewRepeaterAI,
@@ -24,11 +24,11 @@ var ais = map[string]func(*Game) AI{
 	"mcai":          NewMonteCarloid,
 }
 
-func NewAI(g *Game, aiType string) AI {
+func NewAI(g *Game, aiType string, repeatStr string) AI {
 	fn, ok := ais[aiType]
 	if !ok {
 		log.Printf("Invalid AI %q", aiType)
 	}
 
-	return fn(g)
+	return fn(g, repeatStr)
 }

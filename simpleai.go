@@ -9,7 +9,7 @@ type SimpleAI struct {
 	game  *Game
 }
 
-func NewSimpleAI(g *Game) AI {
+func NewSimpleAI(g *Game, _ string) AI {
 	return &SimpleAI{index: 0, game: g}
 }
 

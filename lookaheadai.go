@@ -42,7 +42,7 @@ type LookaheadAI struct {
 }
 
 // NewLookaheadAI builds a new LookaheadAI.
-func NewLookaheadAI(g *Game) AI {
+func NewLookaheadAI(g *Game, _ string) AI {
 	return &LookaheadAI{game: g}
 }
 
