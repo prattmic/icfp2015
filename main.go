@@ -11,6 +11,16 @@ import (
 )
 
 var (
+	defaultPhrases multiStringValue = []string{
+		"ei!",
+		"ia! ia!",
+		"yuggoth",
+		"r'lyeh",
+		"planet 10",
+		"tsathoggua",
+		"monkeyboy",
+	}
+
 	// These are registered in init(), below.
 	inputFiles   multiStringValue
 	powerPhrases multiStringValue
@@ -73,6 +83,10 @@ func main() {
 		log.Printf("invalid arguments: %v", err)
 		flag.Usage()
 		return
+	}
+
+	if len(powerPhrases) == 0 {
+		powerPhrases = defaultPhrases
 	}
 
 	if *profile != "" {
