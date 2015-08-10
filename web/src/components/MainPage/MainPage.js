@@ -30,12 +30,17 @@ class MainPage extends React.Component {
     window.addEventListener('load', this.redrawBoard.bind(this));
   }
 
+  componentWillUpdate() {
+    this.redrawBoard();
+  }
+
   drawBoard(frame) {
+    let board = frame.Board;
     let grid = ReactDom.findDOMNode(this.refs.gameGrid);
     let hexagonGrid = new HexagonGrid(grid, {
       radius: Math.min(
-        1200 / frame.Width / 2,
-        700 / frame.Height / Math.sqrt(3)
+        1200 / board.Width / 2,
+        700 / board.Height / Math.sqrt(3)
       )
     });
 
@@ -45,32 +50,41 @@ class MainPage extends React.Component {
   }
 
   generateBoardOptions(data) {
-    return {
-      columns: data.Width,
-      rows: data.Height,
-      board: data.Cells.reduce((board, row) => {
-        row.forEach(cell => {
-          let gridCell = this.props.emptyCell;
-          if (cell.Filled) {
-            gridCell = this.props.filledCell;
-          }
+    let renderBoard = data.Board.Cells.reduce((board, row) => {
+      row.forEach(cell => {
+        let gridCell = this.props.emptyCell;
+        if (cell.Filled) {
+          gridCell = this.props.filledCell;
+        }
 
-          board['' + cell.X + cell.Y] = extend(gridCell);
-        });
-        return board;
-      }, {})
+        board['' + cell.X + cell.Y] = extend(gridCell);
+      });
+      return board;
+    }, {});
+
+    data.Unit.Members.forEach((cell) => {
+      renderBoard['' + cell.X + cell.Y] = extend(this.props.droppingCell);
+    });
+
+    let pivot = data.Unit.Pivot;
+    renderBoard['' + pivot.X + pivot.Y].Dot = true;
+
+    return {
+      columns: data.Board.Width,
+      rows: data.Board.Height,
+      board: renderBoard
     };
   }
 
-  nextFrame() {
+  nextFrame(desiredFrame) {
     var frame = Math.min(
-      this.state.frameIndex + 1,
+      desiredFrame || this.state.frameIndex + 1,
       this.props.gameData.length - 1
     );
+
     this.setState({
       frameIndex: frame
     });
-    this.redrawBoard(frame);
   }
 
   playNext() {
@@ -85,11 +99,17 @@ class MainPage extends React.Component {
     this.drawBoard(this.props.gameData[frameIndex || this.state.frameIndex]);
   }
 
+  togglePause(paused) {
+    if (this.state.paused === paused) return;
+
+    this.setState({
+      paused: paused
+    });
+  }
+
   render() {
     this.context.onSetTitle('ICFP!');
-    var gridStyle = {
-      position: 'relative'
-    };
+    let gameData = this.props.gameData[this.state.frameIndex] || {};
 
     return (
       <div className="MainPage">
@@ -101,10 +121,14 @@ class MainPage extends React.Component {
           </div>
           <div className="panel-container">
             <h4>Game Controls</h4>
-            <br/>
             <h5>Current Frame: {this.state.frameIndex}</h5>
+            <h5>Current AI: {gameData.AI}</h5>
+            <h5>Current Score: {gameData.Score}</h5>
             <br/>
-            <button onClick={this.nextFrame.bind(this)}>Next Frame</button>
+            <button onClick={this.nextFrame.bind(this, this.state.frameIndex + 1)}>Next Frame</button>
+            <button onClick={this.togglePause.bind(this, !this.state.paused)}>
+              {this.state.paused ? 'Resume' : 'Pause'}
+            </button>
           </div>
         </div>
       </div>
@@ -118,7 +142,11 @@ MainPage.defaultProps = {
     stroke: '#000'
   },
   filledCell: {
-    fill: '#f50',
+    fill: '#fa0',
+    stroke: '#000'
+  },
+  droppingCell: {
+    fill: '#f10',
     stroke: '#000'
   },
   gridWidth: 1000,

@@ -19,7 +19,7 @@ class GameFetcher extends React.Component {
   };
 
   componentDidMount() {
-    xhr('/api/newgame', (err, resp, body) => {
+    xhr('/api/newgame?ai=treeai', (err, resp, body) => {
       this.setState({
         gameData: JSON.parse(body)
       })

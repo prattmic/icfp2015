@@ -97,36 +97,46 @@ class HexagonGrid {
 
   drawHex(x0, y0, cell) {
     var fillColor = cell.fill;
+    var context = this.context;
 
     this.context.strokeStyle = cell.stroke;
     this.context.beginPath();
 
     if (this.flatTop) {
-      this.context.moveTo(x0 + this.width - this.side, y0);
-      this.context.lineTo(x0 + this.side, y0);
-      this.context.lineTo(x0 + this.width, y0 + (this.height / 2));
-      this.context.lineTo(x0 + this.side, y0 + this.height);
-      this.context.lineTo(x0 + this.width - this.side, y0 + this.height);
-      this.context.lineTo(x0, y0 + (this.height / 2));
+      context.moveTo(x0 + this.width - this.side, y0);
+      context.lineTo(x0 + this.side, y0);
+      context.lineTo(x0 + this.width, y0 + (this.height / 2));
+      context.lineTo(x0 + this.side, y0 + this.height);
+      context.lineTo(x0 + this.width - this.side, y0 + this.height);
+      context.lineTo(x0, y0 + (this.height / 2));
 
     } else {
 
-      this.context.moveTo(x0 + (this.width / 2), y0);
-      this.context.lineTo(x0 + this.width, y0 + this.height - this.side);
-      this.context.lineTo(x0 + this.width, y0 + this.side);
-      this.context.lineTo(x0 + (this.width / 2), y0 + this.height);
-      this.context.lineTo(x0, y0 + this.side);
-      this.context.lineTo(x0, y0 + this.height - this.side);
+      context.moveTo(x0 + (this.width / 2), y0);
+      context.lineTo(x0 + this.width, y0 + this.height - this.side);
+      context.lineTo(x0 + this.width, y0 + this.side);
+      context.lineTo(x0 + (this.width / 2), y0 + this.height);
+      context.lineTo(x0, y0 + this.side);
+      context.lineTo(x0, y0 + this.height - this.side);
     }
-
 
     if (fillColor) {
-      this.context.fillStyle = fillColor;
-      this.context.fill();
+      context.fillStyle = fillColor;
+      context.fill();
     }
 
-    this.context.closePath();
-    this.context.stroke();
+    context.closePath();
+    context.stroke();
+
+    if (cell.Dot) {
+      context.beginPath();
+      context.arc(x0 + this.width / 2, y0 + this.height / 2, this.radius / 3, 0, 2 * Math.PI, false);
+      context.fillStyle = '#000';
+      context.strokeStyle = '#fff';
+      context.fill();
+      context.stroke();
+      context.closePath();
+    }
 
     if (cell.text) {
       this.context.fillStyle = '#000';
