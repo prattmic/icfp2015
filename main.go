@@ -205,13 +205,14 @@ func main() {
 				}
 			}
 
-			if *customtag == "" {
-				*customtag = fmt.Sprintf("Final Score: %v", a.Game().FinalScore())
+			mytag := *customtag
+			if mytag == "" {
+				mytag = fmt.Sprintf("Final Score: %v", a.Game().FinalScore())
 			}
 			output = append(output, OutputEntry{
 				ProblemId: problem.Id,
 				Seed:      problem.SourceSeeds[gi],
-				Tag:       *customtag,
+				Tag:       mytag,
 				Solution:  a.Game().FinalCommands.String(),
 			})
 		}
