@@ -51,6 +51,8 @@ var (
 	repeat    = flag.String("repeat", "", "String for RepeaterAI to run")
 	seed      = flag.Uint64("seed", 0xFFFFFFFFFFFFFFFF, "Use specific seed for single game")
 	customtag = flag.String("customtag", "", "Custom tag for solution")
+
+	debug = flag.Bool("debug", false, "enable logging")
 )
 
 // multiStringValue is a flag.Value which can be specified multiple times
@@ -66,6 +68,13 @@ func (s *multiStringValue) String() string {
 func (s *multiStringValue) Set(v string) error {
 	*s = append(*s, v)
 	return nil
+}
+
+type devNull struct{}
+
+// Write consumes all.
+func (d devNull) Write([]byte) (int, error) {
+	return 0, nil
 }
 
 func ArgsOk() error {
@@ -93,6 +102,10 @@ func main() {
 		log.Printf("invalid arguments: %v", err)
 		flag.Usage()
 		return
+	}
+
+	if !*debug {
+		log.SetOutput(devNull{})
 	}
 
 	if len(powerPhrases) == 0 {
