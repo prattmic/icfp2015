@@ -105,7 +105,7 @@ type ChanterAI struct {
 	current Commands
 }
 
-func NewChanterAI(g *Game, repeatStr string) AI {
+func NewChanterAI(g *Game, _ string) AI {
 	return &ChanterAI{index: 0, game: g}
 }
 
