@@ -53,7 +53,7 @@ type CMonteCarloid struct {
 	g *Game
 }
 
-func NewCMonteCarloid(g *Game) AI {
+func NewCMonteCarloid(g *Game, _ string) AI {
 	return &CMonteCarloid{g: g}
 }
 
