@@ -18,6 +18,7 @@ var (
 		"r'lyeh",
 		"planet 10",
 		"tsathoggua",
+		"monkeyboy",
 	}
 
 	// These are registered in init(), below.
