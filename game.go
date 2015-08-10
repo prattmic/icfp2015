@@ -132,13 +132,15 @@ func (g *Game) NextUnit() (*Unit, bool) {
 }
 
 func (g *Game) placeUnit(u *Unit) bool {
-	l, r := u.widthBounds()
+	l, r := u.Bounds()
 
-	uwidth := r - l + 1
+	uwidth := r.X - l.X + 1
 	extraSpace := g.B.Width - uwidth
 
 	// Center up, rounding down, leaving less space on the left.
 	rightShift := extraSpace / 2
+	// If the leftmost cell is not at zero, we don't need to shift as much.
+	rightShift -= l.X
 	for i := range u.Members {
 		u.Members[i].X += rightShift
 	}

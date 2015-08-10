@@ -77,16 +77,18 @@ func (u *Unit) OverlapsAny(others []*Unit) bool {
 	return false
 }
 
-func (u *Unit) widthBounds() (int, int) {
-	leftmost := math.MaxInt32
-	rightmost := 0
+// Left and rightmost Cells.
+func (u *Unit) Bounds() (Cell, Cell) {
+	leftmost := Cell{math.MaxInt32, 0}
+	rightmost := Cell{0, 0}
+
 	for _, c := range u.Members {
-		if c.X < leftmost {
-			leftmost = c.X
+		if c.X < leftmost.X {
+			leftmost = c
 		}
 
-		if c.X > rightmost {
-			rightmost = c.X
+		if c.X > rightmost.X {
+			rightmost = c
 		}
 	}
 
