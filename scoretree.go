@@ -8,6 +8,7 @@ type Node struct {
 	dead     bool // Game ending leaf.
 	d        Direction
 	children []*Node
+	game     *Game
 }
 
 var (
@@ -59,8 +60,8 @@ func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 
 	c := directionToCommands[d][0]
 
-	forked := g.Fork()
-	locked, done, err := forked.Update(c)
+	n.game = g.Fork()
+	locked, done, err := n.game.Update(c)
 	if err != nil {
 		// NO POINTS FOR U
 		n.score = -1000000000
@@ -77,18 +78,18 @@ func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 
 	if depth == 0 {
 		midY := 0.0
-		for _, c := range forked.currUnit.Members {
+		for _, c := range n.game.currUnit.Members {
 			midY += float64(c.Y)
 		}
-		midY /= float64(len(forked.currUnit.Members))
+		midY /= float64(len(n.game.currUnit.Members))
 
-		n.score = forked.Score() + depthWeight*(midY+float64(height))
+		n.score = n.game.Score() + depthWeight*(midY+float64(height))
 		return n
 	}
 
 	n.children = make([]*Node, nary)
 	for i := range n.children {
-		n.children[i] = BuildScoreTree(dirs[i], forked, depth-1, height+1)
+		n.children[i] = BuildScoreTree(dirs[i], n.game, depth-1, height+1)
 	}
 
 	if locked {

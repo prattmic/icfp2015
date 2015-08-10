@@ -12,7 +12,12 @@ import (
 func (n *Node) addToGraph(g *gographviz.Graph, parent string) {
 	id := strconv.Itoa(n.id)
 
-	label := fmt.Sprintf(`"Score %d\nDirection: %s"`, int(n.score), n.d)
+	label := "root"
+	if n.game != nil {
+		label = fmt.Sprintf(`"Score: %d
+Direction: %s
+Unit: %+v"`, int(n.score), n.d, n.game.currUnit)
+	}
 
 	attrs := map[string]string{
 		"label": label,
