@@ -15,8 +15,9 @@ func (n *Node) addToGraph(g *gographviz.Graph, parent string) {
 	label := "root"
 	if n.game != nil {
 		label = fmt.Sprintf(`"Score: %d
+Weights: %v
 Direction: %s
-Unit: %+v"`, int(n.score), n.d, n.game.currUnit)
+Unit: %+v"`, int(n.score), n.weights, n.d, n.game.currUnit)
 	}
 
 	attrs := map[string]string{

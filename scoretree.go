@@ -9,6 +9,7 @@ type Node struct {
 	d        Direction
 	children []*Node
 	game     *Game
+	weights  map[string]float64
 }
 
 var (
@@ -55,7 +56,11 @@ func (n *Node) IsDead() bool {
 }
 
 func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
-	n := &Node{d: d, id: uniqueId}
+	n := &Node{
+		d: d,
+		id: uniqueId,
+		weights: make(map[string]float64),
+	}
 	uniqueId++
 
 	c := directionToCommands[d][0]
@@ -83,7 +88,10 @@ func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 		}
 		midY /= float64(len(n.game.currUnit.Members))
 
-		n.score = n.game.Score() + depthWeight*(midY+float64(height))
+		n.weights["gameScore"] = n.game.Score()
+		n.weights["depth"] = depthWeight*(midY+float64(height))
+
+		n.score = n.weights["gameScore"] + n.weights["depth"]
 		return n
 	}
 
@@ -93,10 +101,12 @@ func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 	}
 
 	if locked {
-		n.score = -1000
+		n.weights["locked"] = -1000
+		n.score = n.weights["locked"]
 	}
 
-	n.score += n.BestMove().score
+	n.weights["bestMove"] = n.BestMove().score
+	n.score += n.weights["bestMove"]
 
 	return n
 }
