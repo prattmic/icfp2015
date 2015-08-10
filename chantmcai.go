@@ -62,8 +62,15 @@ func (m *CMonteCarloid) Game() *Game {
 }
 
 var (
-	chantDepth   = 6
-	chantRetries = 100
+	chantDepth       = 2
+	chantRetries     = 100
+	desperateRetries = 1000
+	randMoves        = 5
+)
+
+var (
+	cdirs = []Direction{SE, SW, E, W, CW, CCW}
+	cnary = len(dirs)
 )
 
 func (m *CMonteCarloid) Next() (bool, error) {
@@ -72,15 +79,32 @@ func (m *CMonteCarloid) Next() (bool, error) {
 
 	var ded bool
 	var err error
+	var found bool
 	for i := 0; i < chantRetries; i++ {
 		ded, _, err = tryDirection(m.g.Fork(), command, command, m.g.Score(), chantDepth)
 
 		if !ded {
+			found = true
 			break
 		}
 
 		//log.Printf("retry needed cause best node %+v ended game\n", best)
 		command = defaultPhrases[rand.Intn(sz)]
+	}
+
+	if !found {
+		for i := 0; i < desperateRetries; i++ {
+			command = ""
+			for i := 0; i < randMoves; i++ {
+				d := cdirs[rand.Intn(cnary)]
+				command += string(byte(directionToCommands[d][0]))
+			}
+
+			ded, _, err = tryDirection(m.g.Fork(), command, command, m.g.Score(), chantDepth)
+			if !ded {
+				break
+			}
+		}
 	}
 
 	for _, c := range command {
