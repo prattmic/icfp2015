@@ -66,6 +66,8 @@ func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 	c := directionToCommands[d][0]
 
 	n.game = g.Fork()
+
+	unit := n.game.currUnit.DeepCopy()
 	locked, done, err := n.game.Update(c)
 	if err != nil {
 		// NO POINTS FOR U
@@ -102,7 +104,11 @@ func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 	}
 
 	if locked {
-		n.weights["locked"] = -1000
+		if n.game.B.GapBelowAny(unit) {
+			n.weights["locked"] = -10000
+		} else {
+			n.weights["locked"] = 10000
+		}
 		n.score += n.weights["locked"]
 	}
 
