@@ -13,6 +13,7 @@ import (
 
 var (
 	defaultPhrases multiStringValue = []string{
+		"necronomicon",
 		"tsathoggua",
 		"planet 10",
 		"monkeyboy",
