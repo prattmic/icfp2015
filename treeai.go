@@ -2,6 +2,8 @@ package main
 
 import (
 	"errors"
+	"fmt"
+	"io/ioutil"
 	"log"
 )
 
@@ -51,6 +53,7 @@ func NewTreeDescender(g *Game) *TreeDescender {
 // TreeAI implements AI.
 type TreeAI struct {
 	game *Game
+	step int
 }
 
 func NewTreeAI(g *Game) AI {
@@ -65,7 +68,18 @@ func (a *TreeAI) Game() *Game {
 
 // Next steps the game, returning true when the game is done.
 func (a *TreeAI) Next() (bool, error) {
+	a.step++
+
 	t := NewTreeDescender(a.game)
+
+	if *graph != "" {
+		name := fmt.Sprintf("%s.%d.dot", *graph, a.step)
+		graph := t.root.Graph()
+		if err := ioutil.WriteFile(name, []byte(graph), 0644); err != nil {
+			log.Fatalf("Failed to write graph: %v", err)
+		}
+	}
+
 	c, err := t.Next()
 	if err == errNoMoves {
 		// No possible moves, we are stuck!

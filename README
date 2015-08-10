@@ -31,3 +31,11 @@ $ ./play_icfp2015 -serve
 $ ./play_icfp2015 <whatever> -profile /tmp/out.pprof
 $ go tool pprof -web ./play_icfp2015 /tmp/out.pprof
 ```
+
+# Graph AI's
+
+```sh
+$ go get github.com/awalterschulze/gographviz
+$ make graph
+$ ./play_icfp2015 ... -graph /tmp/icfp/graph
+```
