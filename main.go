@@ -28,7 +28,7 @@ var (
 	// These are registered in init(), below.
 	inputFiles   multiStringValue
 	powerPhrases multiStringValue
-	aiFlags      multiStringValue = []string{"mcai", "chanterai", "treeai"}
+	aiFlags      multiStringValue = []string{"mcai", "cmc", "chanterai", "treeai"}
 
 	timeLimit = flag.Int("t", 0, "Time limit, in seconds, to produce output.")
 
@@ -80,10 +80,10 @@ func ArgsOk() error {
 	return nil
 }
 
-type AISolution struct{
-	name string
+type AISolution struct {
+	name     string
 	commands string
-	score float64
+	score    float64
 }
 
 func main() {
@@ -224,9 +224,9 @@ func main() {
 				}
 
 				aiSolutions = append(aiSolutions, AISolution{
-					name: ai,
+					name:     ai,
 					commands: a.Game().FinalCommands.String(),
-					score: a.Game().FinalScore(),
+					score:    a.Game().FinalScore(),
 				})
 			}
 
