@@ -24,6 +24,17 @@ func (ai *SimpleAI) Game() *Game {
 
 // }
 
+func moveDirection(ai *SimpleAI, d Direction) (bool, bool, error) {
+	fork := ai.game.Fork()
+	locked, done, err := fork.Update(directionToCommands[d][0])
+
+	if !locked {
+		ai.game = fork
+	}
+
+	return locked, done, err
+}
+
 // Next steps the AI one step, returning true if the game is
 // complete, or an error if the game cannot continue.
 func (ai *SimpleAI) Next() (bool, error) {
@@ -54,67 +65,37 @@ func (ai *SimpleAI) Next() (bool, error) {
 
 	// move left
 	if firstMember.X > leftMost {
-		fork := ai.game.Fork()
-		locked, done, err := fork.Update(directionToCommands[W][0])
+		locked, done, err := moveDirection(ai, W)
 
 		if !locked {
-			ai.game = fork
 			return done, err
 		}
 	}
 
 	// move right
 	if firstMember.X < leftMost {
-		fork := ai.game.Fork()
-		locked, done, err := fork.Update(directionToCommands[E][0])
+		locked, done, err := moveDirection(ai, E)
 
 		if !locked {
-			ai.game = fork
 			return done, err
 		}
 	}
 
 	// move southwest
-	fork := ai.game.Fork()
-	locked, done, err := fork.Update(directionToCommands[SW][0])
+	locked, done, err := moveDirection(ai, SW)
 
 	if !locked {
-		ai.game = fork
 		return done, err
 	}
 
-	// move southeast
-	fork = ai.game.Fork()
-	locked, done, err = fork.Update(directionToCommands[SE][0])
+	// // move southeast
+	locked, done, err = moveDirection(ai, SE)
 
 	if !locked {
-		ai.game = fork
 		return done, err
 	}
 
-	// move west
-	fork = ai.game.Fork()
-	locked, done, err = fork.Update(directionToCommands[W][0])
-
-	if !locked {
-		ai.game = fork
-		return done, err
-	}
-
-	// move west
-	fork = ai.game.Fork()
-	locked, done, err = fork.Update(directionToCommands[E][0])
-
-	if !locked {
-		ai.game = fork
-		return done, err
-	}
-
-	// move left to match X
-
-	// move down to match Y
-
-	locked, done, err = ai.game.Update(directionToCommands[SE][0])
+	_, done, err = ai.game.Update(directionToCommands[SE][0])
 
 	return done, err
 }
