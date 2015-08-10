@@ -83,6 +83,7 @@ func (ai *SimpleAI) Next() (bool, error) {
 		return done, err
 	}
 
+	log.Printf("%s", SE)
 	// move southeast
 	fork = ai.game.Fork()
 	locked, done, err = fork.Update(directionToCommands[SE][0])

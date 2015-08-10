@@ -188,7 +188,7 @@ class MainPage extends React.Component {
       );
     });
 
-    var aiList = ['repeaterai', 'treeai', 'simpleai', 'lookaheadai'].map(ai => {
+    var aiList = ['chanterai', 'mcai', 'repeaterai', 'rollingtreeai', 'treeai', 'simpleai', 'lookaheadai'].map(ai => {
       return (
         <option key={ai}>
           {ai}
