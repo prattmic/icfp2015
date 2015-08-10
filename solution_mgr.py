@@ -110,6 +110,7 @@ if __name__ == '__main__':
     parser.add_argument('-latest_scores', action="store_true", default=False)
     parser.add_argument('-sub_optimal_scores', action="store_true", default=False)
     parser.add_argument('-post_optimal_scores', action="store_true", default=False)
+    parser.add_argument('-record_all', action="store_true", default=False)
     args = parser.parse_args()
 
     scores = read_server()
@@ -125,5 +126,10 @@ if __name__ == '__main__':
 
     if args.post_optimal_scores:
         post_optimal_scores(scores)
+
+    if args.record_all:
+        with open('output.json', 'w') as f:
+            resp = requests.get(address, auth=('', API_TOKEN))
+            f.write(resp.content)
 
 
