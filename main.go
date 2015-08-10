@@ -15,6 +15,7 @@ var (
 	defaultPhrases multiStringValue = []string{
 		"necronomicon",
 		"tsathoggua",
+		"blue hades",
 		"planet 10",
 		"monkeyboy",
 		"yuggoth",
