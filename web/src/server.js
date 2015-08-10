@@ -16,6 +16,7 @@ server.use(express.static(path.join(__dirname, 'public')));
 // -----------------------------------------------------------------------------
 server.use('/api/content', require('./api/content'));
 server.use('/api/newgame', require('./api/newgame'));
+server.use('/api/getqualifier', require('./api/getqualifiers'));
 
 //
 // Register server-side rendering middleware

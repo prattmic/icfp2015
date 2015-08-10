@@ -4,6 +4,7 @@ import document from 'global/document';
 import extend from 'xtend';
 import MainPage from '../MainPage';
 import styles from './GameFetcher.css';
+import url from 'url';
 import withStyles from '../../decorators/withStyles';
 import window from 'global/window';
 import xhr from 'xhr';
@@ -15,29 +16,56 @@ class GameFetcher extends React.Component {
     onSetTitle: PropTypes.func.isRequired
   };
 
-  state = {
-  };
+  state = {};
 
   componentDidMount() {
-    xhr('/api/newgame?ai=treeai', (err, resp, body) => {
+    this.fetchQualifiers();
+    this.fetchNewGame();
+  }
+
+  fetchNewGame(options) {
+    options = options || {};
+    this.setState({
+      gameData: null,
+      qualifierName: options.qualifier || 'default'
+    });
+
+    xhr(url.format({
+      pathname: '/api/newgame',
+      query: {
+        ai: options.ai || 'treeai',
+        qualifier: options.qualifier
+      }
+    }), (err, resp, body) => {
       this.setState({
         gameData: JSON.parse(body)
       })
     });
   }
 
+  fetchQualifiers() {
+    xhr('/api/getqualifier', (err, resp, body) => {
+      this.setState({
+        qualifiers: JSON.parse(body)
+      })
+    });
+  }
+
   render() {
-    if (!this.state.gameData) {
+    if (!this.state.gameData || !this.state.qualifiers) {
       return (
-        <div className="loading-game">Game loading...</div>
+        <h1 className="loading-game">Game loading... Qualfier {this.state.qualifierName}</h1>
       );
     }
 
     return (
       <div className="GameFetcher">
-        <MainPage gameData={this.state.gameData}
+        <MainPage
+          fetchNewGame={this.fetchNewGame.bind(this)}
+          gameData={this.state.gameData}
           gridWidth={this.props.gridWidth}
-          gridHeight={this.props.gridHeight} />
+          gridHeight={this.props.gridHeight}
+          qualifiers={this.state.qualifiers}/>
       </div>
     );
   }
