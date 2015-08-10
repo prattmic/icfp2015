@@ -62,7 +62,8 @@ class GameFetcher extends React.Component {
       <div className="GameFetcher">
         <MainPage
           fetchNewGame={this.fetchNewGame.bind(this)}
-          gameData={this.state.gameData}
+          board={this.state.gameData.Board}
+          gameData={this.state.gameData.Frames}
           gridWidth={this.props.gridWidth}
           gridHeight={this.props.gridHeight}
           qualifiers={this.state.qualifiers}/>
