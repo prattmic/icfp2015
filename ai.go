@@ -15,11 +15,13 @@ type AI interface {
 }
 
 var ais = map[string]func(*Game) AI{
-	"treeai":      NewTreeAI,
-	"lookaheadai": NewLookaheadAI,
-	"repeaterai":  NewRepeaterAI,
-	"simpleai":    NewSimpleAI,
-	"chanterai":   NewChanterAI,
+	"treeai":        NewTreeAI,
+	"lookaheadai":   NewLookaheadAI,
+	"repeaterai":    NewRepeaterAI,
+	"simpleai":      NewSimpleAI,
+	"chanterai":     NewChanterAI,
+	"rollingtreeai": NewRollingTreeAI,
+	"mcai":          NewMonteCarloid,
 }
 
 func NewAI(g *Game, aiType string) AI {
