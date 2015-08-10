@@ -49,6 +49,8 @@ func (d Direction) String() string {
 type Command byte
 type Commands []Command
 
+var normalizedCommands []Commands
+
 var commandToDirection = map[Command]Direction{
 	'p':  W,
 	'\'': W,
@@ -110,15 +112,21 @@ var normalizedPhrases multiStringValue
 
 func normalizePhrases() {
 	n := make([]string, len(powerPhrases))
+	m := make([]Commands, len(powerPhrases))
 	for i, phrase := range powerPhrases {
 		s := make([]byte, len(phrase))
+		z := make(Commands, len(phrase))
 		for j, c := range phrase {
 			d := commandToDirection[Command(c)]
+			z[j] = directionToCommands[d][0]
 			s[j] = byte(directionToCommands[d][0])
 		}
 		n[i] = string(s)
+		m[i] = z
 	}
 	normalizedPhrases = n
+	normalizedCommands = m
+	cary = len(normalizedPhrases)
 }
 
 func (c Command) String() string {
