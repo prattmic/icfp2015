@@ -8,15 +8,43 @@ import (
 )
 
 type Frame struct {
-	Board *Board
-	Unit  *Unit
-	Score float64
-	AI    string
+	BoardDelta []BoardCell
+	Unit       *Unit
+	Score      float64
+	AI         string
+}
+
+type GameSolveResponse struct {
+	Frames []Frame
+	Board  *Board
 }
 
 type ReceivedProblem struct {
 	Problem InputProblem
 	AI      string
+}
+
+func getFrameDeltas(prev *Board, curr *Board) []BoardCell {
+	deltas := []BoardCell{}
+
+	if prev == nil {
+		log.Println("prev was nil")
+		return deltas
+	}
+
+	prev = prev.Fork()
+	curr = curr.Fork()
+
+	for y := range prev.Cells {
+		for x := range prev.Cells[y] {
+			if prev.Cells[x][y].Filled != curr.Cells[x][y].Filled {
+				log.Printf("delta at %s, %s", x, y)
+				deltas = append(deltas, curr.Cells[x][y])
+			}
+		}
+	}
+
+	return deltas
 }
 
 // POST a JSON InputProblem, receive a newGameResponse with the token to send
@@ -42,21 +70,32 @@ func newGameHandler(w http.ResponseWriter, r *http.Request) {
 	g := GamesFromProblem(&problem.Problem)[0]
 	a := NewAI(g, problem.AI)
 
-	frames := []Frame{}
+	response := GameSolveResponse{
+		Board:  g.B.Fork(),
+		Frames: []Frame{},
+	}
+
+	var prevBoard *Board
 
 	i := 1
 	for {
 		game := a.Game()
+
+		done, err := a.Next()
+
+		deltas := getFrameDeltas(prevBoard, game.B)
+
 		frame := Frame{
-			Board: game.B.Fork(),
-			Unit:  game.currUnit.DeepCopy(),
-			Score: game.Score(),
-			AI:    aiFlag,
+			BoardDelta: deltas,
+			Unit:       game.currUnit.DeepCopy(),
+			Score:      game.Score(),
+			AI:         aiFlag,
 		}
 
-		// Make this copy the object to save state for later.
-		frames = append(frames, frame)
-		done, err := a.Next()
+		prevBoard = game.B.Fork()
+
+		response.Frames = append(response.Frames, frame)
+
 		if done {
 			log.Println("Game done!")
 			break
@@ -70,7 +109,7 @@ func newGameHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 
-	if err := json.NewEncoder(w).Encode(frames); err != nil {
+	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, fmt.Sprintf("Unable to encode JSON: %v", err), http.StatusInternalServerError)
 		return
 	}

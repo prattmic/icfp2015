@@ -22,12 +22,11 @@ class MainPage extends React.Component {
 
   componentDidMount() {
     this.setState({
+      board: this.props.board,
       mounted: true
     });
 
     this.playFrames(this.state.interval);
-
-    this.redrawBoard(this.state.frameIndex);
 
     window.addEventListener('resize', this.redrawBoard.bind(this));
     window.addEventListener('load', this.redrawBoard.bind(this));
@@ -53,22 +52,32 @@ class MainPage extends React.Component {
   }
 
   drawBoard(frame) {
-    let board = frame.Board;
     let grid = ReactDom.findDOMNode(this.refs.gameGrid);
     let hexagonGrid = new HexagonGrid(grid, {
       radius: Math.min(
-        1200 / board.Width / 2,
-        700 / board.Height / Math.sqrt(3)
+        1200 / this.state.board.Width / 2,
+        700 / this.state.board.Height / Math.sqrt(3)
       )
     });
 
+    let deltas = frame.BoardDelta;
+
+    let updatedBoard = extend(this.state.board);
+    deltas.forEach(delta => {
+      updatedBoard.Cells[delta.X][delta.Y] = delta;
+    });
+
+    this.setState({
+      board: updatedBoard
+    });
+
     hexagonGrid.drawHexGrid(
-      this.generateBoardOptions(frame)
+      this.generateBoardOptions(updatedBoard, frame)
     );
   }
 
-  generateBoardOptions(data) {
-    let renderBoard = data.Board.Cells.reduce((board, row) => {
+  generateBoardOptions(b, data) {
+    let renderBoard = b.Cells.reduce((board, row) => {
       row.forEach(cell => {
         let gridCell = this.props.emptyCell;
         if (cell.Filled) {
@@ -92,8 +101,8 @@ class MainPage extends React.Component {
     }
 
     return {
-      columns: data.Board.Width,
-      rows: data.Board.Height,
+      columns: this.state.board.Width,
+      rows: this.state.board.Height,
       board: renderBoard
     };
   }
@@ -139,7 +148,6 @@ class MainPage extends React.Component {
 
   setGameSpeed(e) {
     e.preventDefault();
-    console.log('setting speed, ', parseInt(this.refs.setSpeedInput.value.trim()));
     this.setState({
       interval: parseInt(this.refs.setSpeedInput.value.trim())
     });
@@ -179,7 +187,7 @@ class MainPage extends React.Component {
       );
     });
 
-    var aiList = ['treeai', 'lookaheadai'].map(ai => {
+    var aiList = ['treeai', 'simpleai', 'lookaheadai'].map(ai => {
       return (
         <option key={ai}>
           {ai}
