@@ -2,11 +2,6 @@
 
 [Go](http://golang.org/) v1.4+
 
-# Run tests:
-```sh
-$ go test
-```
-
 # Build the binary
 ```sh
 make
