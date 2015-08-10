@@ -33,6 +33,7 @@ func (l *GameLCG) Next() uint64 {
 type Game struct {
 	// Accumulated move score so far.
 	moveScore float64
+	powerWordCount map[string]int
 
 	// All previous commands sent to the game.
 	Commands Commands
@@ -67,6 +68,11 @@ func (g *Game) Fork() *Game {
 	n.Commands = make(Commands, len(g.Commands))
 	copy(n.Commands, g.Commands)
 
+	n.powerWordCount = make(map[string]int)
+	for k, v := range g.powerWordCount {
+		n.powerWordCount[k] = v
+	}
+
 	return n
 }
 
@@ -80,6 +86,7 @@ func GamesFromProblem(p *InputProblem) []*Game {
 			lcg:      NewLCG(s),
 			units:    p.Units,
 			numUnits: p.SourceLength,
+			powerWordCount: make(map[string]int),
 		}
 
 		next, ok := g.NextUnit()
@@ -182,13 +189,31 @@ func CountOverlap(s, sep string) (count int) {
 	return
 }
 
-// PowerScore computes the phrase of power score from the currently completed
-// moves.
-func (g *Game) PowerScore() (score int) {
+func (g *Game) updatePowerCount() (score int) {
 	s := g.Commands.String()
 
 	for _, p := range normalizedPhrases {
-		n := CountOverlap(s, p)
+		if len(s) < len(p) {
+			continue
+		}
+
+		end := s[len(s) - len(p):]
+		if end == p {
+			c, ok := g.powerWordCount[p]
+			if !ok {
+				c = 0
+			}
+			g.powerWordCount[p] = c + 1
+		}
+	}
+
+	return
+}
+
+// PowerScore computes the phrase of power score from the currently completed
+// moves.
+func (g *Game) PowerScore() (score int) {
+	for p, n := range g.powerWordCount {
 		score += 2 * len(p) * n
 		if n > 0 {
 			score += 300
@@ -277,6 +302,8 @@ func (g *Game) Update(c Command) (bool, bool, error) {
 	// moves.
 	g.Commands = append(g.Commands, c)
 	g.previousMoves = previousMoves
+
+	g.updatePowerCount()
 
 	if g.B.IsValid(moved) {
 		g.currUnit = moved

@@ -10,13 +10,14 @@ type Node struct {
 	children []*Node
 	game     *Game
 	weights  map[string]float64
+	h        int
 }
 
 var (
 	dirs = []Direction{SE, SW, E, W, CW, CCW}
 	nary = len(dirs)
 
-	depthWeight = 100.0
+	depthWeight = 10.0
 
 	uniqueId int
 )
@@ -57,8 +58,8 @@ func (n *Node) IsDead() bool {
 
 func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 	n := &Node{
-		d: d,
-		id: uniqueId,
+		d:       d,
+		id:      uniqueId,
 		weights: make(map[string]float64),
 	}
 	uniqueId++
@@ -90,7 +91,7 @@ func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 	midY /= float64(len(n.game.currUnit.Members))
 
 	n.weights["gameScore"] = n.game.Score()
-	n.weights["depth"] = depthWeight*(midY+float64(height))
+	n.weights["depth"] = depthWeight * (midY + float64(height))
 
 	n.score = n.weights["gameScore"] + n.weights["depth"]
 
@@ -116,4 +117,37 @@ func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 	n.score += n.weights["bestMove"]
 
 	return n
+}
+
+// TODO(myenik) XXX Lol dis is broke
+// Extends tree by one level
+func (n *Node) GrowScoreTree() {
+	n.h-- // Move each node up one level.
+
+	if !n.IsLeaf() {
+		// First subtract old subtree score (some score is due to locking a unit, etc...)
+		n.score -= n.BestMove().score
+
+		// Update children.
+		for i := range n.children {
+			n.children[i].GrowScoreTree()
+		}
+
+		// Then add in new subtree score.
+		n.score += n.BestMove().score
+
+		return
+	}
+
+	if n.IsDead() {
+		return
+	}
+
+	// We will grow non-dead leaf nodes by one.
+	n.children = make([]*Node, nary)
+	for i := range n.children {
+		n.children[i] = BuildScoreTree(dirs[i], n.game, 0, n.h+1)
+	}
+
+	return
 }

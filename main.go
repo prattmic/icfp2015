@@ -14,7 +14,9 @@ import (
 var (
 	defaultPhrases multiStringValue = []string{
 		"necronomicon",
+		"the laundry",
 		"tsathoggua",
+		"blue hades",
 		"planet 10",
 		"monkeyboy",
 		"yuggoth",
@@ -242,6 +244,6 @@ func init() {
 		}
 	}
 
-	flag.StringVar(&aiFlag, "ai", "treeai", fmt.Sprintf("AI to use:%s", keys))
+	flag.StringVar(&aiFlag, "ai", "mcai", fmt.Sprintf("AI to use:%s", keys))
 
 }

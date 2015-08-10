@@ -34,7 +34,7 @@ func (t *TreeDescender) Next() (Command, error) {
 
 func NewTreeDescender(g *Game) *TreeDescender {
 	// TODO(myenik) paramterize depth
-	depth := 4
+	depth := 5
 	height := 0
 
 	// Fake root, there is no direction here.
@@ -94,5 +94,77 @@ func (a *TreeAI) Next() (bool, error) {
 
 	locked, done, err := a.game.Update(c)
 	log.Printf("Update(%s) -> locked %v done %v, %v", c, locked, done, err)
+	return done, err
+}
+
+// TODO(myenik) XXX Lol dis is broke
+type RollingTreeDescender struct {
+	root *Node
+}
+
+func NewRollingTreeDescender(g *Game) *RollingTreeDescender {
+	// TODO(myenik) paramterize depth
+	depth := 5
+	height := 0
+
+	// Fake root, there is no direction here.
+	root := &Node{}
+
+	root.children = make([]*Node, nary)
+	for i := range root.children {
+		root.children[i] = BuildScoreTree(dirs[i], g, depth-1, height+1)
+	}
+
+	root.score = root.BestMove().score
+
+	return &RollingTreeDescender{root: root}
+}
+
+func (t *RollingTreeDescender) Next() (Command, error) {
+	if t.root.IsDead() {
+		return 0, errNoMoves
+	}
+
+	if t.root.IsLeaf() {
+		return 0, errTreeExhausted
+	}
+
+	next := t.root.BestMove()
+	next.GrowScoreTree()
+	t.root = next
+
+	// TODO(myenik) First command is *best* command!
+	return directionToCommands[next.d][0], nil
+}
+
+// RollingTreeAI implements AI.
+type RollingTreeAI struct {
+	game *Game
+	r    *RollingTreeDescender
+}
+
+func NewRollingTreeAI(g *Game, st string) AI {
+	return &RollingTreeAI{
+		game: g,
+		r:    NewRollingTreeDescender(g),
+	}
+}
+
+func (a *RollingTreeAI) Game() *Game {
+	return a.game
+}
+
+func (a *RollingTreeAI) Next() (bool, error) {
+	c, err := a.r.Next()
+	if err == errNoMoves {
+		return false, err
+	}
+
+	if err == errTreeExhausted {
+		return false, err
+	}
+
+	_, done, err := a.game.Update(c)
+	log.Printf("Update(%s) -> %v, %v", c, done, err)
 	return done, err
 }

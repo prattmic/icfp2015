@@ -87,7 +87,7 @@ func (a *LookaheadAI) Next() (bool, error) {
 
 	// Collect results
 	var ret []aiResult
-	for range coms {
+	for _ = range coms {
 		ret = append(ret, <-ch)
 	}
 
