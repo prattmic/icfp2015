@@ -119,7 +119,7 @@ func main() {
 			}
 
 			log.Printf("Playing %+v", g)
-			a := NewAI(g)
+			a := NewAI(g, aiFlag)
 
 			i := 1
 			for {

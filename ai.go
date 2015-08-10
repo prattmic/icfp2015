@@ -20,10 +20,10 @@ var ais = map[string]func(*Game) AI{
 	"repeaterai":  NewRepeaterAI,
 }
 
-func NewAI(g *Game) AI {
-	fn, ok := ais[aiFlag]
+func NewAI(g *Game, aiType string) AI {
+	fn, ok := ais[aiType]
 	if !ok {
-		log.Fatalf("Invalid AI %q", aiFlag)
+		log.Printf("Invalid AI %q", aiType)
 	}
 
 	return fn(g)

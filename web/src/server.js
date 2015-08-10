@@ -15,6 +15,7 @@ server.use(express.static(path.join(__dirname, 'public')));
 // Register API middleware
 // -----------------------------------------------------------------------------
 server.use('/api/content', require('./api/content'));
+server.use('/api/newgame', require('./api/newgame'));
 
 //
 // Register server-side rendering middleware
