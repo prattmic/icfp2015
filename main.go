@@ -13,6 +13,8 @@ import (
 
 var (
 	defaultPhrases multiStringValue = []string{
+		"case nightmare green",
+		"john bigboote",
 		"necronomicon",
 		"the laundry",
 		"tsathoggua",
@@ -29,6 +31,7 @@ var (
 	inputFiles   multiStringValue
 	powerPhrases multiStringValue
 	aiFlags      multiStringValue = []string{"mcai", "cmc", "chanterai", "treeai"}
+	//aiFlags multiStringValue = []string{}
 
 	timeLimit = flag.Int("t", 0, "Time limit, in seconds, to produce output.")
 
