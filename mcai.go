@@ -20,15 +20,15 @@ type weightedDir struct {
 }
 
 var (
-	probeDepth     = 200
+	probeDepth     = 300
 	probeWidth     = 6
 	gameEndRetries = 1000000
 	pathEndRetries = 10
 	weightedDirs   = []weightedDir{
 		weightedDir{25, SE},
 		weightedDir{25, SW},
-		weightedDir{25, E},
-		weightedDir{25, W},
+		weightedDir{75, E},
+		weightedDir{75, W},
 		weightedDir{25, CW},
 		weightedDir{25, CCW},
 	}
@@ -115,9 +115,9 @@ func (n *MCNode) tryDirection(d Direction, scoresofar float64, tries int) (bool,
 	}
 
 	// We must go deeper
-	//if d == SW || d == SE {
-	scoresofar += 10.0
-	//}
+	if d == SW || d == SE {
+		scoresofar += 10.0
+	}
 
 	if locked {
 		if n.g.B.GapBelowAny(thisUnit) {
