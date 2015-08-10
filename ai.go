@@ -18,6 +18,7 @@ var ais = map[string]func(*Game) AI{
 	"treeai":      NewTreeAI,
 	"lookaheadai": NewLookaheadAI,
 	"repeaterai":  NewRepeaterAI,
+	"simpleai":    NewSimpleAI,
 }
 
 func NewAI(g *Game, aiType string) AI {
