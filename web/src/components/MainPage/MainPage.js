@@ -157,7 +157,8 @@ class MainPage extends React.Component {
     e.preventDefault();
     this.props.fetchNewGame({
       ai: this.refs.selectAi.value.trim(),
-      qualifier: this.refs.selectQualifier.value.trim()
+      qualifier: this.refs.selectQualifier.value.trim(),
+      repeater: this.refs.repeater.value.trim()
     });
   }
 
@@ -187,7 +188,7 @@ class MainPage extends React.Component {
       );
     });
 
-    var aiList = ['treeai', 'simpleai', 'lookaheadai'].map(ai => {
+    var aiList = ['repeaterai', 'treeai', 'simpleai', 'lookaheadai'].map(ai => {
       return (
         <option key={ai}>
           {ai}
@@ -236,6 +237,7 @@ class MainPage extends React.Component {
                 <select className="ai-select max-width" name="ai" ref="selectAi">
                   {aiList}
                 </select>
+                <input className="max-width" type="text" name="repeater" ref="repeater"/>
                 <input className="new-game-submit max-width" type="submit" value="New Game" />
               </form>
             </div>

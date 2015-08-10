@@ -10,8 +10,8 @@ type RepeaterAI struct {
 	game  *Game
 }
 
-func NewRepeaterAI(g *Game) AI {
-	return &RepeaterAI{index: 0, str: *repeat, game: g}
+func NewRepeaterAI(g *Game, repeatStr string) AI {
+	return &RepeaterAI{index: 0, str: repeatStr, game: g}
 }
 
 // Game returns the Game used by the AI.

@@ -20,8 +20,9 @@ type GameSolveResponse struct {
 }
 
 type ReceivedProblem struct {
-	Problem InputProblem
-	AI      string
+	Problem  InputProblem
+	AI       string
+	Repeater string
 }
 
 func getFrameDeltas(prev *Board, curr *Board) []BoardCell {
@@ -68,7 +69,7 @@ func newGameHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Ignore all but the first seeded game.
 	g := GamesFromProblem(&problem.Problem)[0]
-	a := NewAI(g, problem.AI)
+	a := NewAI(g, problem.AI, problem.Repeater)
 
 	response := GameSolveResponse{
 		Board:  g.B.Fork(),
@@ -109,6 +110,7 @@ func newGameHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 
+	log.Printf("data ", problem.Repeater)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, fmt.Sprintf("Unable to encode JSON: %v", err), http.StatusInternalServerError)
 		return

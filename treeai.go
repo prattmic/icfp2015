@@ -56,7 +56,7 @@ type TreeAI struct {
 	step int
 }
 
-func NewTreeAI(g *Game) AI {
+func NewTreeAI(g *Game, repeatStr string) AI {
 	return &TreeAI{
 		game: g,
 	}
