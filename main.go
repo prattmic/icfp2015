@@ -30,6 +30,8 @@ var (
 	display  = flag.Bool("display", false, "Open the GIF after rendering")
 	gifdelay = flag.Int("gif_delay", 10, "Time in 1/100ths of a second to wait between render frames.")
 
+	graph = flag.String("graph", "", "Dump treeai graph to file with this prefix")
+
 	profile = flag.String("profile", "", "Output CPU profile to file")
 
 	repeat    = flag.String("repeat", "", "String for RepeaterAI to run")
