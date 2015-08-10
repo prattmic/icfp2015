@@ -28,7 +28,7 @@ var (
 	// These are registered in init(), below.
 	inputFiles   multiStringValue
 	powerPhrases multiStringValue
-	aiFlags      multiStringValue = []string{"treeai"}
+	aiFlags      multiStringValue = []string{"mcai", "chanterai", "treeai"}
 
 	timeLimit = flag.Int("t", 0, "Time limit, in seconds, to produce output.")
 
