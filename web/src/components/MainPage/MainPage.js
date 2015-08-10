@@ -148,6 +148,7 @@ class MainPage extends React.Component {
   submitNewGame(e) {
     e.preventDefault();
     this.props.fetchNewGame({
+      ai: this.refs.selectAi.value.trim(),
       qualifier: this.refs.selectQualifier.value.trim()
     });
   }
@@ -174,6 +175,14 @@ class MainPage extends React.Component {
       return (
         <option key={qualifier}>
           {qualifier}
+        </option>
+      );
+    });
+
+    var aiList = ['treeai', 'lookaheadai'].map(ai => {
+      return (
+        <option key={ai}>
+          {ai}
         </option>
       );
     });
@@ -215,6 +224,9 @@ class MainPage extends React.Component {
                 <label className="qualifier-label max-width" htmlFor="qualifier">Qualifier</label>
                 <select className="qualifier-select max-width" name="qualifier" ref="selectQualifier">
                   {qualifiers}
+                </select>
+                <select className="ai-select max-width" name="ai" ref="selectAi">
+                  {aiList}
                 </select>
                 <input className="new-game-submit max-width" type="submit" value="New Game" />
               </form>
