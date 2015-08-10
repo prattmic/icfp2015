@@ -18,6 +18,10 @@ class MainPage extends React.Component {
   state = {frameIndex: 0};
 
   componentDidMount() {
+    this.setState({
+      mounted: true
+    });
+
     this.redrawBoard();
 
     setInterval(() => {
@@ -31,7 +35,9 @@ class MainPage extends React.Component {
   }
 
   componentWillUpdate() {
-    this.redrawBoard();
+    if (this.state.mounted) {
+      this.redrawBoard();
+    }
   }
 
   drawBoard(frame) {
