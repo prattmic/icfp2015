@@ -57,7 +57,7 @@ def print_latest_scores(scoring):
     key_list.sort()
     for key in key_list:
         a = latest_score(scoring[key])
-        print '{:2}:{:7} = {:5} @ {}'.format(key[0], key[1], a.score, a.created_at)
+        print '{:2}:{:7} = {} @ {}'.format(key[0], key[1], a, a.created_at)
 
 
 def print_suboptimal_scores(scoring):
@@ -92,14 +92,7 @@ def post_score(entry):
     resp = requests.post(address, auth=('', API_TOKEN), headers={'Content-type': 'application/json'}, data=json.dumps(formatted_ans))
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Solution Manager')
-    parser.add_argument('-max_scores', action="store_true", default=False)
-    parser.add_argument('-latest_scores', action="store_true", default=False)
-    parser.add_argument('-sub_optimal_scores', action="store_true", default=False)
-    parser.add_argument('-post_optimal_scores', action="store_true", default=False)
-    args = parser.parse_args()
-
+def read_server():
     resp = requests.get(address, auth=('', API_TOKEN))
     raw_scores = json.loads(resp.content)
     scores = {}
@@ -108,6 +101,18 @@ if __name__ == '__main__':
         if (newEntry.problem_id, newEntry.seed) not in scores:
             scores[newEntry.problem_id, newEntry.seed] = []
         scores[newEntry.problem_id, newEntry.seed].append(newEntry)
+    return scores
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Solution Manager')
+    parser.add_argument('-max_scores', action="store_true", default=False)
+    parser.add_argument('-latest_scores', action="store_true", default=False)
+    parser.add_argument('-sub_optimal_scores', action="store_true", default=False)
+    parser.add_argument('-post_optimal_scores', action="store_true", default=False)
+    args = parser.parse_args()
+
+    scores = read_server()
 
     if args.max_scores:
         print_max_scores(scores)
