@@ -81,17 +81,18 @@ func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 		return n
 	}
 
+	midY := 0.0
+	for _, c := range n.game.currUnit.Members {
+		midY += float64(c.Y)
+	}
+	midY /= float64(len(n.game.currUnit.Members))
+
+	n.weights["gameScore"] = n.game.Score()
+	n.weights["depth"] = depthWeight*(midY+float64(height))
+
+	n.score = n.weights["gameScore"] + n.weights["depth"]
+
 	if depth == 0 {
-		midY := 0.0
-		for _, c := range n.game.currUnit.Members {
-			midY += float64(c.Y)
-		}
-		midY /= float64(len(n.game.currUnit.Members))
-
-		n.weights["gameScore"] = n.game.Score()
-		n.weights["depth"] = depthWeight*(midY+float64(height))
-
-		n.score = n.weights["gameScore"] + n.weights["depth"]
 		return n
 	}
 
@@ -102,7 +103,7 @@ func BuildScoreTree(d Direction, g *Game, depth int, height int) *Node {
 
 	if locked {
 		n.weights["locked"] = -1000
-		n.score = n.weights["locked"]
+		n.score += n.weights["locked"]
 	}
 
 	n.weights["bestMove"] = n.BestMove().score
