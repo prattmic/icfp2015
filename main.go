@@ -12,13 +12,13 @@ import (
 
 var (
 	defaultPhrases multiStringValue = []string{
-		"ei!",
-		"ia! ia!",
-		"yuggoth",
-		"r'lyeh",
-		"planet 10",
 		"tsathoggua",
+		"planet 10",
 		"monkeyboy",
+		"yuggoth",
+		"ia! ia!",
+		"r'lyeh",
+		"ei!",
 	}
 
 	// These are registered in init(), below.
@@ -88,6 +88,7 @@ func main() {
 	if len(powerPhrases) == 0 {
 		powerPhrases = defaultPhrases
 	}
+	normalizePhrases()
 
 	if *profile != "" {
 		f, err := os.Create(*profile)
@@ -156,7 +157,9 @@ func main() {
 			}
 
 			log.Printf("Commands: %s", a.Game().Commands)
-			log.Printf("Final Score: %f", a.Game().Score())
+			a.Game().WriteFinalCommands()
+			log.Printf("Final Commands: %s", a.Game().FinalCommands)
+			log.Printf("Final Score: %f", a.Game().FinalScore())
 
 			if *render {
 				gifname := fmt.Sprintf("%s_game%d.gif", name, gi)
@@ -173,13 +176,13 @@ func main() {
 			}
 
 			if *customtag == "" {
-				*customtag = fmt.Sprintf("Score: %v", a.Game().Score())
+				*customtag = fmt.Sprintf("Final Score: %v", a.Game().FinalScore())
 			}
 			output = append(output, OutputEntry{
 				ProblemId: problem.Id,
 				Seed:      problem.SourceSeeds[gi],
 				Tag:       *customtag,
-				Solution:  a.Game().Commands.String(),
+				Solution:  a.Game().FinalCommands.String(),
 			})
 		}
 	}

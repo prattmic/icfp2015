@@ -36,6 +36,8 @@ type Game struct {
 
 	// All previous commands sent to the game.
 	Commands Commands
+	// Recomputed commands for submission, using actual phrases
+	FinalCommands Commands
 
 	B         *Board
 	units     []Unit
@@ -185,6 +187,21 @@ func CountOverlap(s, sep string) (count int) {
 func (g *Game) PowerScore() (score int) {
 	s := g.Commands.String()
 
+	for _, p := range normalizedPhrases {
+		n := CountOverlap(s, p)
+		score += 2 * len(p) * n
+		if n > 0 {
+			score += 300
+		}
+	}
+
+	return
+}
+
+// PowerScore() but with final phrases
+func (g *Game) PowerFinalScore() (score int) {
+	s := g.FinalCommands.String()
+
 	for _, p := range powerPhrases {
 		n := CountOverlap(s, p)
 		score += 2 * len(p) * n
@@ -199,6 +216,32 @@ func (g *Game) PowerScore() (score int) {
 // Score returns the total game score so far.
 func (g *Game) Score() float64 {
 	return g.moveScore + float64(g.PowerScore())
+}
+
+// Score() but with final phrases
+func (g *Game) FinalScore() float64 {
+	return g.moveScore + float64(g.PowerFinalScore())
+}
+
+// Rewrite commands with "final" power Phrases instead of normalized ones
+func (g *Game) WriteFinalCommands() {
+	s := g.Commands.String() // Copy starting commands
+	again := true
+	for again {
+		again = false
+		// Loop over all power phrases, try to replace them each once
+		for i, np := range normalizedPhrases {
+			pp := powerPhrases[i]
+			if strings.Index(s, np) >= 0 {
+				again = true // go through the list again
+				s = strings.Replace(s, np, pp, 1)
+			}
+		}
+	}
+	g.FinalCommands = make(Commands, len(s)) // Done
+	for i, c := range s {
+		g.FinalCommands[i] = Command(c)
+	}
 }
 
 // Update returns a bool indicating whether a piece was locked, the game is done, and err to indicate and error (backwards move).
